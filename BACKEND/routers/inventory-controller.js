@@ -230,6 +230,23 @@ exports.listInventory = (req, res) => {
     });
 };
 
+exports.inventoryInOutGraph = (req, res) => {
+    let query = `select  sum(case when type = 'IN' then qty else 0 end) as inQty, 
+                sum(case when type = 'OUT' then qty else 0 end) as outQty, i.name
+                from inventory_transactions it left join inventory i on i.id = it.inventory_id
+                group by  i.id order by inQty `
+
+    connection.db.execute(query, [], (err, result) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: 'Database query error' });
+        }
+        res.status(200).json({
+            success: true,
+            data: result,
+         });
+    });
+};
+
 exports.inventoryTransaction = (req, res) => {
     const { inventory_id, type, qty, customer_id } = req.body;
 

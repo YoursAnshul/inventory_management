@@ -228,6 +228,7 @@ app.post('/inventory', authenticateToken, inventoryController.addInventory);
 app.put('/inventory/:id', authenticateToken, inventoryController.updateInventory);
 app.delete('/inventory/:id', authenticateToken, inventoryController.deleteInventory);
 app.get('/inventory', authenticateToken, inventoryController.listInventory);
+app.get('/inventory/in-out-graph', authenticateToken, inventoryController.inventoryInOutGraph);
 app.get('/inventory-details', authenticateToken, inventoryController.listInventoryDetails);
 // Inventory Transaction Routes
 app.post('/inventory/transaction', authenticateToken, inventoryController.inventoryTransaction);
