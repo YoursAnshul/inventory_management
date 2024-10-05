@@ -239,7 +239,7 @@ app.get('/categories', authenticateToken, inventoryController.getCategories);
 app.get('/customers', authenticateToken, inventoryController.getCustomers);
 
 //Dashboard
-app.get('/customers', authenticateToken, dashboardController.getDashboardData);
+app.get('/dashboard', authenticateToken, dashboardController.getDashboardData);
 
 
 app.use((req, res) => {
