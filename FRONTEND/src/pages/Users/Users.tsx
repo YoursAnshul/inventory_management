@@ -1,14 +1,11 @@
 import React, { Dispatch, useEffect, useRef, useState } from "react";
-import "./users.scss";
-import { Container, Row, Form, Card, Button, Table } from "react-bootstrap";
-import Loginbg from "../../assets/images/rupess.svg";
+import { Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { MdModeEditOutline } from "react-icons/md";
 import { FaTrashAlt } from "react-icons/fa";
 import Modal from "react-bootstrap/Modal";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../config/Store";
-import AccessDenied from "../../components/AccessDenied/AccessDenied";
 import { Controller, useForm } from "react-hook-form";
 import WebService from "../../Services/WebService";
 import { toast } from "react-toastify";
@@ -19,6 +16,7 @@ import VendorSelect from "../../components/VendorSelect/VendorSelect";
 import { BsEye, BsEyeSlash } from "react-icons/bs";
 import Grid, {
   GridColumn,
+
   GridHeader,
   GridRow,
 } from "../../components/Grid/Grid";
@@ -49,6 +47,10 @@ const headers: GridHeader[] = [
     title: "Permission",
     class: "text-center",
   },
+  {
+    title: "Action",
+    class: "text-center",
+  },
 ];
 const Users = () => {
   const [show, setShow] = useState(false);
@@ -63,7 +65,6 @@ const Users = () => {
     setEditData("")
     reset({});
   };
-  const [isAccess, setIsAccess] = useState<boolean>(false);
   const userInfoData: any = useSelector<RootState, any>(
     (state: any) => state.userInfoData
   );
@@ -114,12 +115,6 @@ const Users = () => {
     }
   }, [userInfoData?.user_info?.permission]);
   useEffect(() => {
-    if (
-      userInfoData?.user_info?.isVendor === 0 &&
-      !userInfoData?.user_info?.vendorId
-    ) {
-      setIsAccess(true);
-    }
     let roleValue = [
       { id: "MANAGER", role: "Manager" },
       { id: "ADMIN", role: "Admin" },
@@ -721,6 +716,7 @@ const Users = () => {
         <Modal.Footer></Modal.Footer>
       </Modal>
     </>
+    
   );
 };
 
