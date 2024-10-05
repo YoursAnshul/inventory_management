@@ -35,72 +35,41 @@ exports.addUser = (req, res) => {
 exports.getUserList = (req, res) => {
     let { page, keyword, date_from, date_to } = req.query;
 
-    const limit = 10;
-    page = page ? parseInt(page, 10) : 1;
-
-    if (isNaN(page) || page < 1) {
-        return res.status(400).json({ success: false, message: 'Invalid page value' });
-    }
-
-    const offset = (page - 1) * limit;
-
     let query = `
         SELECT id, first_name, last_name, CONCAT(first_name, ' ', last_name) AS name, mobile_number, email, role, permission, created_at
         FROM users 
         WHERE status = 'ACTIVE' AND isCustomer = false`;
 
-    if (date_from && date_to) {
-        query += ` AND  DATE(created_at) between DATE('${date_from}') AND DATE('${date_to}') `;
-    } else if (date_from) {
-        query += ` AND  DATE(created_at) >= DATE('${date_from}') `;
-    } else if (date_to) {
-        query += ` AND  DATE(created_at) <= DATE('${date_to}') `;
-    }
-
     let countQuery = `SELECT COUNT(*) AS total FROM users WHERE status = 'ACTIVE' AND isCustomer = false`;
-
-    if (date_from && date_to) {
-        countQuery += ` AND  DATE(created_at) between DATE('${date_from}') AND DATE('${date_to}') `;
-    } else if (date_from) {
-        countQuery += ` AND  DATE(created_at) >= DATE('${date_from}') `;
-    } else if (date_to) {
-        countQuery += ` AND  DATE(created_at) <= DATE('${date_to}') `;
-    }
 
     let queryParams = [];
     let countParams = [];
 
-    if (keyword) {
-        query += ` AND (CONCAT(first_name, ' ', last_name) LIKE ? OR email LIKE ?)`;
-        countQuery += ` AND (CONCAT(first_name, ' ', last_name) LIKE ? OR email LIKE ?)`;
-        queryParams.push(`%${keyword}%`, `%${keyword}%`);
-        countParams.push(`%${keyword}%`, `%${keyword}%`);
-    }
-
-    query += ` LIMIT ? OFFSET ?`;
-    queryParams.push(limit, offset);
-
+    console.log(query);
+    console.log(queryParams);
+    
+    console.log(countQuery);
+    
+    
     connection.db.execute(query, queryParams, (err, results) => {
         if (err) {
+            console.log(err);
+            
             return res.status(500).json({ success: false, message: 'Database query error' });
         }
 
         connection.db.execute(countQuery, countParams, (err, countResults) => {
             if (err) {
+                console.log(err);
+                
                 return res.status(500).json({ success: false, message: 'Database query error' });
             }
 
-            const totalRecords = countResults[0].total;
-            const totalPages = Math.ceil(totalRecords / limit);
 
             res.status(200).json({
                 success: true,
                 data: results,
                 pagination: {
-                    totalRecords,
-                    totalPages,
-                    currentPage: page,
-                    pageSize: limit,
                 },
             });
         });
@@ -160,6 +129,7 @@ exports.updateUser = (req, res) => {
         SET ${updateFields.join(', ')}
         WHERE id = ?`;
 
+    
     connection.db.execute(updateUserQuery, queryParams, (err, results) => {
         if (err) {
             return res.status(500).json({ success: false, message: 'Database query error' });

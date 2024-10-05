@@ -2,12 +2,10 @@ import {
   Routes,
   Route,
   Navigate,
-  RouteProps,
   RoutesProps,
 } from "react-router-dom";
 
-import React, { Suspense, useEffect } from "react";
-import { useState } from "react";
+import React, { Suspense } from "react";
 import ProtectedRoute from "./ProtectedRoute";
 import Main from "../components/Main";
 import { RootState } from "../config/Store";
@@ -23,8 +21,6 @@ const Navigation = () => {
     (state: any) => state.userLogin
   );
 
-  // element = { defaultProtectedRouteProps.isAuthenticated || login.loginSuccess ? (<Navigate replace to="/dashboard" />) : item.component }
-
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, "outlet"> = {
     isAuthenticated: localStorage.getItem("token") != null,
     authenticationPath: "/login",
@@ -38,32 +34,16 @@ const Navigation = () => {
   const Feedbackdetails = React.lazy(
     () => import("../pages/Feedbackdetails/Feedbackdetails")
   );
-  const ServiceMonitoring = React.lazy(
-    () => import("../pages/Service-Monitoring/Service.Monitoring")
-  );
 
   return (
     <>
       <div id="main-wraper">
         <Routes>
           <Route
-            path="/login"
-            element={
-              <Suspense fallback={<></>}>
-                {defaultProtectedRouteProps.isAuthenticated ||
-                login.loginSuccess ? (
-                  <Navigate replace to="/dashboard" />
-                ) : (
-                  <Login />
-                )}
-              </Suspense>
-            }
-          />
-          <Route
             path="/"
             element={
               defaultProtectedRouteProps.isAuthenticated ||
-              login.loginSuccess ? (
+                login.loginSuccess ? (
                 <Navigate replace to="/dashboard" />
               ) : (
                 <Navigate replace to="/login" />
@@ -104,15 +84,6 @@ const Navigation = () => {
                 <Suspense fallback={<></>}>
                   {" "}
                   <Feedbackdetails />{" "}
-                </Suspense>
-              }
-            />
-            <Route
-              path="/service-monitoring"
-              element={
-                <Suspense fallback={<></>}>
-                  {" "}
-                  <ServiceMonitoring />{" "}
                 </Suspense>
               }
             />
