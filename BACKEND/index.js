@@ -186,7 +186,7 @@ app.get('/me', (req, res) => {
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
         if (err) return res.status(403).json({ success: false, message: 'Invalid token' });
         
-        let query = "SELECT email, created_at,first_name,last_name, isCustomer, customerId, role, permission FROM users WHERE id= ? ";
+        let query = "SELECT email, created_at,first_name,last_name, isCustomer, customerId, role FROM users WHERE id= ? ";
         db.execute(query, [user.userId], (err, results) => {
             if (err) {
                 return res.status(500).json({ success: false, message: 'Database query error' });
