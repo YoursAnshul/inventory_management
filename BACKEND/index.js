@@ -225,9 +225,12 @@ app.get('/list-customers', authenticateToken, customerController.listCustomers);
 app.get('/categories', authenticateToken, inventoryController.getCategories);
 app.get('/customers', authenticateToken, inventoryController.getCustomers);
 app.post('/inventory', authenticateToken, inventoryController.addInventory);
-app.put('/inventory', authenticateToken, inventoryController.updateInventory);
-app.get('/inventory', authenticateToken, inventoryController.getInventory);
-app.get('/inventory/transactions', authenticateToken, inventoryController.getInventoryTransactions);
+app.put('/inventory/:inventoryId', authenticateToken, inventoryController.updateInventory);
+app.delete('/inventory/:inventoryId', authenticateToken, inventoryController.deleteInventory);
+app.get('/inventory', authenticateToken, inventoryController.listInventory);
+app.post('/inventory/transaction', authenticateToken, inventoryController.inventoryTransaction);
+app.get('/inventory/transactions', authenticateToken, inventoryController.listInventoryTransactions);
+
 
 app.use((req, res) => {
     res.status(404).json({ success: false, message: 'Route not found' });
