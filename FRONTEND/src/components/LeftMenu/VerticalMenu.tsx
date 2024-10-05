@@ -35,21 +35,8 @@ const VerticalMenu = () => {
         <>
             <div id="vertical_menu" className="verticle-menu">
                 <div className="menu-list">
-                    <Link id="t-1" to={'/dashboard'} className="menu-item"> <LuLayoutDashboard className="menu-icon dashboard" /> <span className='nav-text'>Dashbaord</span></Link>
-                    <Link id="t-1" to={'/charging'} className="menu-item"><PiBatteryChargingVertical className="menu-icon" />  <span className='nav-text'>Charging Monitoring</span></Link>
-                    <Link id="t-1" to={'/service-monitoring'} className="menu-item"><LuSettings className="menu-icon" />  <span className='nav-text'>Service Monitoring</span></Link>
-                    <Link id="t-1" to={'/feedback'} className="menu-item"><VscFeedback className="menu-icon" />  <span className='nav-text'>Feedback Management</span></Link> 
-                    {userInfoData.user_info.isVendor === 0 && !userInfoData.user_info.vendorId && (
-                        <>
-                            <Link id="t-1" to={'/station'} className="menu-item"> <LiaChargingStationSolid className="menu-icon" /> <span className='nav-text'>Station Management</span></Link>
-                            <Link id="t-1" to={'/customer-database'} className="menu-item"> <LuUsers className="menu-icon" /> <span className='nav-text'>Customer Database</span></Link>
-                            <Link id="t-1" to={'/bookings'} className="menu-item"> <LuCalendarCheck className="menu-icon" /> <span className='nav-text'>Manage Booking</span></Link>
-                            <Link id="t-1" to={'/vendor-management'} className="menu-item"> <LuIndianRupee className="menu-icon" /> <span className='nav-text'>Vendor Management</span></Link>
-                            <Link id="t-1" to={'/users'} className="menu-item"> <LuUsers className="menu-icon" /> <span className='nav-text'>User Management</span></Link>
-                        </>
-                     )
-                    }
-
+                    <Link id="t-1" to={'/feedback'} className="menu-item"><VscFeedback className="menu-icon" />  <span className='nav-text'>Feedback Management</span></Link>
+                    <Link id="t-1" to={'/users'} className="menu-item"> <LuUsers className="menu-icon" /> <span className='nav-text'>User Management</span></Link>
                 </div>
             </div>
         </>

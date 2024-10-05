@@ -38,9 +38,7 @@ const Navigation = () => {
   const Feedbackdetails = React.lazy(
     () => import("../pages/Feedbackdetails/Feedbackdetails")
   );
-  const ServiceMonitoring = React.lazy(
-    () => import("../pages/Service-Monitoring/Service.Monitoring")
-  );
+
 
   return (
     <>
@@ -104,15 +102,6 @@ const Navigation = () => {
                 <Suspense fallback={<></>}>
                   {" "}
                   <Feedbackdetails />{" "}
-                </Suspense>
-              }
-            />
-            <Route
-              path="/service-monitoring"
-              element={
-                <Suspense fallback={<></>}>
-                  {" "}
-                  <ServiceMonitoring />{" "}
                 </Suspense>
               }
             />
