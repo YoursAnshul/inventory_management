@@ -15,6 +15,7 @@ import { UserState } from "../reducer/AuthReducer";
 import { useSelector } from "react-redux";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import CategoryManagement from "../pages/Category-Management/category";
+import CustomerManagement from "../pages/Customer-Management/Customer-Management";
 const Navigation = () => {
   interface ProtectedRouteProps extends RoutesProps {
     isAuthenticated: boolean;
@@ -121,6 +122,15 @@ const Navigation = () => {
                 <Suspense fallback={<></>}>
                   {" "}
                   <CategoryManagement />{" "}
+                </Suspense>
+              }
+            />
+             <Route
+              path="/customer-management"
+              element={
+                <Suspense fallback={<></>}>
+                  {" "}
+                  <CustomerManagement />{" "}
                 </Suspense>
               }
             />
