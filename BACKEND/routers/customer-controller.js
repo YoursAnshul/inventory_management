@@ -87,7 +87,6 @@ exports.deleteCustomer = (req, res) => {
 };
 
 
-
 exports.listCustomers = (req, res) => {
     let { page, keyword, date_from, date_to } = req.query;
 
@@ -100,16 +99,8 @@ exports.listCustomers = (req, res) => {
 
     const offset = (page - 1) * limit;
 
-    let listQuery = `
-        SELECT id, name, mobile_number, email, status, created_at, updated_at
-        FROM customers
-        WHERE status = ?`;
-    
-    let countQuery = `
-        SELECT COUNT(id) AS total
-        FROM customers
-        WHERE status = ?`;
-
+    let listQuery = `SELECT id, name, created_at, updated_at, status FROM customers WHERE status = ?`;
+    let countQuery = `SELECT COUNT(id) AS total FROM customers WHERE status = ?`;
     let queryParams = ['ACTIVE'];
 
     if (keyword) {
@@ -123,7 +114,6 @@ exports.listCustomers = (req, res) => {
         countQuery += ' AND created_at >= ?';
         queryParams.push(date_from);
     }
-
     if (date_to) {
         listQuery += ' AND created_at <= ?';
         countQuery += ' AND created_at <= ?';
@@ -132,8 +122,7 @@ exports.listCustomers = (req, res) => {
 
     listQuery += ` LIMIT ${limit} OFFSET ${offset}`;
 
-
-    connection.db.execute(countQuery, queryParams.slice(0, queryParams.length - 2), (err, countResults) => {
+    connection.db.execute(countQuery, queryParams, (err, countResults) => {
         if (err) {
             return res.status(500).json({ success: false, message: 'Database query error' });
         }
