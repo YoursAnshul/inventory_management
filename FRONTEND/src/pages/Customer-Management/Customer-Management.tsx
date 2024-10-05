@@ -78,41 +78,41 @@ const CustomerManagement = () => {
   const [showDeleteModal, setDeleteModal] = useState<boolean>(false);
 
   useEffect(() => {
-      getCategoryList(1);
+    getCustomerList(1);
   }, []);
 
   const addUser = (data: any) => {
     if (data.id) {
       WebService.putAPI({
-        action: "update-category/" + data.id,
+        action: "update-customer/" + data.id,
         body: data,
         id: "add_user",
       })
         .then((res: any) => {
           reset({});
           setShow(false);
-          toast.success("Category Updated Successfully");
+          toast.success("Customer Updated Successfully");
           dispatch(setDataInRedux({ type: UPDATE_ME_CALL, value: true }));
-          getCategoryList(1);
+          getCustomerList(1);
         })
         .catch((e) => {
-          toast.error("Category Updatation Failed try again.");
+          toast.error("Customer Updatation Failed try again.");
         });
     } else {
-      WebService.postAPI({ action: "add-category", body: data, id: "add_user" })
+      WebService.postAPI({ action: "add-customer", body: data, id: "add_user" })
         .then((res: any) => {
           reset({});
           setShow(false);
-          getCategoryList(1);
-          toast.success("Category Created Successfully");
+          getCustomerList(1);
+          toast.success("Customer Created Successfully");
         })
         .catch(() => {
-          toast.error("Category Creation Failed try again.");
+          toast.error("Customer Creation Failed try again.");
         });
     }
   };
 
-  const getCategoryList = (
+  const getCustomerList = (
     page: number,
     keyword?: string,
     startDate?: Date,
@@ -121,7 +121,7 @@ const CustomerManagement = () => {
     pageCount.current = page;
     setShowLoader(true);
     WebService.getAPI({
-      action: `list-categories?keyword=${keyword ? keyword : ""}&date_from=${startDate ? startDate : ""
+      action: `list-customers?keyword=${keyword ? keyword : ""}&date_from=${startDate ? startDate : ""
         }&date_to=${endDate ? endDate : ""}`,
       body: { page: page },
     })
@@ -160,35 +160,35 @@ const CustomerManagement = () => {
     return (
       <div className="action-btns row">
         <div>
-            <button
-              type="button"
-              onClick={() => onEdit(value)}
-              className="btn btn-edit editicon"
-              data-toggle="tooltip"
-              data-placement="top"
-              title="Edit"
-            >
-              <span>
-                <Link to="#">
-                  <MdModeEditOutline className="editicon" />
-                </Link>
-              </span>
-            </button>
+          <button
+            type="button"
+            onClick={() => onEdit(value)}
+            className="btn btn-edit editicon"
+            data-toggle="tooltip"
+            data-placement="top"
+            title="Edit"
+          >
+            <span>
+              <Link to="#">
+                <MdModeEditOutline className="editicon" />
+              </Link>
+            </span>
+          </button>
         </div>
-         <div>
-            <button
-              className="btn btn-delete"
-              onClick={() => onConfirmDelete(value)}
-              data-toggle="tooltip"
-              data-placement="top"
-              title="Delete"
-            >
-              <span>
-                <Link to="#">
-                  <FaTrashAlt className="trashicon" />
-                </Link>
-              </span>
-            </button>
+        <div>
+          <button
+            className="btn btn-delete"
+            onClick={() => onConfirmDelete(value)}
+            data-toggle="tooltip"
+            data-placement="top"
+            title="Delete"
+          >
+            <span>
+              <Link to="#">
+                <FaTrashAlt className="trashicon" />
+              </Link>
+            </span>
+          </button>
         </div>
       </div>
     );
@@ -207,14 +207,14 @@ const CustomerManagement = () => {
     setDeleteModal(false);
     setShowLoader(true);
     WebService.deleteAPI({
-      action: `delete-category/${editData?.id}`,
+      action: `delete-customer/${editData?.id}`,
       body: null,
     })
       .then((res: any) => {
         setShowLoader(false);
         toast.success(res.message);
         setEditData({});
-        getCategoryList(1);
+        getCustomerList(1);
       })
       .catch((e) => {
         setShowLoader(false);
@@ -230,11 +230,11 @@ const CustomerManagement = () => {
             <h5 className="mb-0">Category Management</h5>
           </span>
           <div>
-              <span className="col-2 text-end ml-2">
-                <Button variant="success" onClick={handleShow}>
-                  + Add
-                </Button>
-              </span>
+            <span className="col-2 text-end ml-2">
+              <Button variant="success" onClick={handleShow}>
+                + Add
+              </Button>
+            </span>
           </div>
         </div>
         <DeleteModal
@@ -256,15 +256,15 @@ const CustomerManagement = () => {
             headers={headers}
             ShowLoader={ShowLoader}
             count={totalCount}
-            onPageChange={getCategoryList}
-            errorMessage={"No Category Found"}
+            onPageChange={getCustomerList}
+            errorMessage={"No Customer Found"}
           />
         </div>
       </div>
 
       <Modal size="lg" show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>{isEdit ? 'Edit' : 'Add'} Category</Modal.Title>
+          <Modal.Title>{isEdit ? 'Edit' : 'Add'} Customer</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <form className="mb-3" onSubmit={handleSubmit(addUser)}>
@@ -287,7 +287,84 @@ const CustomerManagement = () => {
                 )}
               </div>
             </div>
+            <div className="row">
 
+              <div className="col-lg-6">
+                <label className="mt-2">Email</label>
+                <span className="text-danger">*</span>
+                <Controller
+                  control={control}
+                  name="email"
+                  rules={{
+                    required: "false",
+                    pattern: {
+                      value: emailRegex,
+                      message: "Enter valid email address",
+                    },
+                  }}
+                  render={({
+                    field: { onChange, onBlur },
+                    fieldState: { isTouched, isDirty },
+                  }) => (
+                    <div>
+                      <div className="form-group">
+                        <div className="input-group mb-1 mt-2">
+                          <span className="input-group-text bg-white border-end-0 text-secondary">
+                            <HiOutlineEnvelope size={16} />
+                          </span>
+                          <input
+                            type="text"
+                            className="form-control ps-3 p-2"
+                            name="new-email"
+                            placeholder="Email Address"
+                            onChange={onChange}
+                            onBlur={onBlur}
+                            value={watch().email}
+                          />
+                        </div>
+                      </div>
+                      {(errors["email"]?.message ||
+                        Boolean(errors["email"]?.message) ||
+                        (isTouched && !watchAllFields.email) ||
+                        (watchAllFields.email &&
+                          !emailRegex.test(watchAllFields.email))) && (
+                          <div className="login-error">
+                            <Label
+                              title={
+                                errors.email?.message || watchAllFields.email
+                                  ? "Enter valid email address"
+                                  : "Please Enter Email."
+                              }
+                              modeError={true}
+                            />
+                          </div>
+                        )}
+                    </div>
+                  )}
+                />
+              </div>
+              <div className="col-lg-6">
+                <label className="mt-2">Mobile Number</label>
+                <span className="text-danger">*</span>
+                <div className="input-group mb-1 mt-2">
+                  <input
+                    type="text"
+                    className="form-control ps-3 p-2"
+                    placeholder="Mobile Number"
+                    onKeyPress={HelperService.allowOnlyNumericValue10}
+                    {...register("mobile_number", { required: true })}
+                  />
+                </div>
+                {errors.mobile_number && (
+                  <div className="login-error mt-2">
+                    <Label
+                      title={"Mobile Number required"}
+                      modeError={true}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
 
             <Button
               id="add_user"
