@@ -191,7 +191,7 @@ const SignUp = () => {
                                                     <div className="row">
 
                                                         <label className="mt-3 mb-2"> Password
-                                                            <span className="text-danger"></span>
+                                                            <span className="text-danger">*</span>
                                                         </label>
                                                         <Controller
                                                             control={control}
@@ -258,7 +258,7 @@ const SignUp = () => {
                                                                 <label className="mb-2">
                                                                     {" "}
                                                                     {"Confirm New Password"}
-                                                                    <span className="text-danger"></span>
+                                                                    <span className="text-danger">*</span>
                                                                 </label>
                                                                 <Controller
                                                                     control={control}

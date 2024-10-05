@@ -89,7 +89,7 @@ const Users = () => {
   const rowCompute = useRef<GridRow[]>([]);
   const [editData, setEditData] = useState<any>();
   const [showDeleteModal, setDeleteModal] = useState<boolean>(false);
-  
+
   useEffect(() => {
     let exist = false;
     for (let i = 0; i < headers.length; i++) {
@@ -105,7 +105,7 @@ const Users = () => {
     }
   }, []);
   useEffect(() => {
-    setValue("role", "ADMIN"); 
+    setValue("role", "ADMIN");
     getUserList(1);
   }, [setValue]);
 
@@ -209,38 +209,34 @@ const Users = () => {
   const actionList = (value: any) => {
     return (
       <div className="action-btns">
-        <div>
-          <button
-            type="button"
-            onClick={() => onEdit(value)}
-            className="btn btn-edit editicon"
-            data-toggle="tooltip"
-            data-placement="top"
-            title="Edit"
-          >
-            <span>
-              <Link to="#">
-                <MdModeEditOutline className="editicon" />
-              </Link>
-            </span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => onEdit(value)}
+          className="btn btn-edit editicon"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Edit"
+        >
+          <span>
+            <Link to="#">
+              <MdModeEditOutline className="editicon" />
+            </Link>
+          </span>
+        </button>
 
-        <div>
-          <button
-            className="btn btn-delete"
-            onClick={() => onConfirmDelete(value)}
-            data-toggle="tooltip"
-            data-placement="top"
-            title="Delete"
-          >
-            <span>
-              <Link to="#">
-                <FaTrashAlt className="trashicon" />
-              </Link>
-            </span>
-          </button>
-        </div>
+        <button
+          className="btn btn-delete"
+          onClick={() => onConfirmDelete(value)}
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Delete"
+        >
+          <span>
+            <Link to="#">
+              <FaTrashAlt className="trashicon" />
+            </Link>
+          </span>
+        </button>
       </div>
     );
   };

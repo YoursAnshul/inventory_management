@@ -78,7 +78,7 @@ const CategoryManagement = () => {
   const [showDeleteModal, setDeleteModal] = useState<boolean>(false);
 
   useEffect(() => {
-      getCategoryList(1);
+    getCategoryList(1);
   }, []);
 
   const addUser = (data: any) => {
@@ -158,38 +158,35 @@ const CategoryManagement = () => {
 
   const actionList = (value: any) => {
     return (
-      <div className="action-btns row">
-        <div>
-            <button
-              type="button"
-              onClick={() => onEdit(value)}
-              className="btn btn-edit editicon"
-              data-toggle="tooltip"
-              data-placement="top"
-              title="Edit"
-            >
-              <span>
-                <Link to="#">
-                  <MdModeEditOutline className="editicon" />
-                </Link>
-              </span>
-            </button>
-        </div>
-         <div>
-            <button
-              className="btn btn-delete"
-              onClick={() => onConfirmDelete(value)}
-              data-toggle="tooltip"
-              data-placement="top"
-              title="Delete"
-            >
-              <span>
-                <Link to="#">
-                  <FaTrashAlt className="trashicon" />
-                </Link>
-              </span>
-            </button>
-        </div>
+      <div className="action-btns">
+        <button
+          type="button"
+          onClick={() => onEdit(value)}
+          className="btn btn-edit editicon"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Edit"
+        >
+          <span>
+            <Link to="#">
+              <MdModeEditOutline className="editicon" />
+            </Link>
+          </span>
+        </button>
+
+        <button
+          className="btn btn-delete"
+          onClick={() => onConfirmDelete(value)}
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Delete"
+        >
+          <span>
+            <Link to="#">
+              <FaTrashAlt className="trashicon" />
+            </Link>
+          </span>
+        </button>
       </div>
     );
   };
@@ -230,11 +227,11 @@ const CategoryManagement = () => {
             <h5 className="mb-0">Category Management</h5>
           </span>
           <div>
-              <span className="col-2 text-end ml-2">
-                <Button variant="success" onClick={handleShow}>
-                  + Add
-                </Button>
-              </span>
+            <span className="col-2 text-end ml-2">
+              <Button variant="success" onClick={handleShow}>
+                + Add
+              </Button>
+            </span>
           </div>
         </div>
         <DeleteModal

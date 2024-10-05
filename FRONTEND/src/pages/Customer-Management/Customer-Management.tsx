@@ -159,37 +159,33 @@ const CustomerManagement = () => {
   const actionList = (value: any) => {
     return (
       <div className="action-btns row">
-        <div>
-          <button
-            type="button"
-            onClick={() => onEdit(value)}
-            className="btn btn-edit editicon"
-            data-toggle="tooltip"
-            data-placement="top"
-            title="Edit"
-          >
-            <span>
-              <Link to="#">
-                <MdModeEditOutline className="editicon" />
-              </Link>
-            </span>
-          </button>
-        </div>
-        <div>
-          <button
-            className="btn btn-delete"
-            onClick={() => onConfirmDelete(value)}
-            data-toggle="tooltip"
-            data-placement="top"
-            title="Delete"
-          >
-            <span>
-              <Link to="#">
-                <FaTrashAlt className="trashicon" />
-              </Link>
-            </span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => onEdit(value)}
+          className="btn btn-edit editicon"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Edit"
+        >
+          <span>
+            <Link to="#">
+              <MdModeEditOutline className="editicon" />
+            </Link>
+          </span>
+        </button>
+        <button
+          className="btn btn-delete"
+          onClick={() => onConfirmDelete(value)}
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Delete"
+        >
+          <span>
+            <Link to="#">
+              <FaTrashAlt className="trashicon" />
+            </Link>
+          </span>
+        </button>
       </div>
     );
   };
