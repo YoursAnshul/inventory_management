@@ -45,26 +45,22 @@ exports.getUserList = (req, res) => {
     const offset = (page - 1) * limit;
 
     let query = `
-        SELECT id, first_name, last_name, CONCAT(first_name, ' ', last_name) AS name, mobile_number, email, role, permission, created_at
+        SELECT id, first_name, last_name, CONCAT(first_name, ' ', last_name) AS name, 
+               mobile_number, email, role, permission, created_at
         FROM users 
         WHERE status = 'ACTIVE' AND isCustomer = false`;
-
-    if (date_from && date_to) {
-        query += ` AND  DATE(created_at) between DATE('${date_from}') AND DATE('${date_to}') `;
-    } else if (date_from) {
-        query += ` AND  DATE(created_at) >= DATE('${date_from}') `;
-    } else if (date_to) {
-        query += ` AND  DATE(created_at) <= DATE('${date_to}') `;
-    }
 
     let countQuery = `SELECT COUNT(*) AS total FROM users WHERE status = 'ACTIVE' AND isCustomer = false`;
 
     if (date_from && date_to) {
-        countQuery += ` AND  DATE(created_at) between DATE('${date_from}') AND DATE('${date_to}') `;
+        query += ` AND DATE(created_at) BETWEEN DATE('${date_from}') AND DATE('${date_to}')`;
+        countQuery += ` AND DATE(created_at) BETWEEN DATE('${date_from}') AND DATE('${date_to}')`;
     } else if (date_from) {
-        countQuery += ` AND  DATE(created_at) >= DATE('${date_from}') `;
+        query += ` AND DATE(created_at) >= DATE('${date_from}')`;
+        countQuery += ` AND DATE(created_at) >= DATE('${date_from}')`;
     } else if (date_to) {
-        countQuery += ` AND  DATE(created_at) <= DATE('${date_to}') `;
+        query += ` AND DATE(created_at) <= DATE('${date_to}')`;
+        countQuery += ` AND DATE(created_at) <= DATE('${date_to}')`;
     }
 
     let queryParams = [];
@@ -77,8 +73,7 @@ exports.getUserList = (req, res) => {
         countParams.push(`%${keyword}%`, `%${keyword}%`);
     }
 
-    query += ` LIMIT ? OFFSET ?`;
-    queryParams.push(limit, offset);
+    query += ` LIMIT ${limit} OFFSET ${offset}`;
 
     connection.db.execute(query, queryParams, (err, results) => {
         if (err) {
@@ -105,7 +100,7 @@ exports.getUserList = (req, res) => {
             });
         });
     });
-}
+};
 
 // Update active user
 exports.updateUser = (req, res) => {

@@ -7,7 +7,7 @@ const winston = require('winston');
 const userController = require('./routers/user-controller.js');
 const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
 require('dotenv').config({ path: envFile });
-
+const categoryController = require('./routers/category-controller.js');
 
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
@@ -207,6 +207,12 @@ app.put('/update-user/:userId', authenticateToken, userController.updateUser);
 app.delete('/delete-user/:userId', authenticateToken, userController.deletUser);
 
 
+// category
+app.post('/add-category', authenticateToken, categoryController.addCategory);
+app.put('/update-category/:id', authenticateToken, categoryController.updateCategory);
+app.delete('/delete-category/:id', authenticateToken, categoryController.deleteCategory);
+app.get('/list-categories', authenticateToken, categoryController.listCategories);
+app.get('/category/:id', authenticateToken, categoryController.getCategoryDetails);
 
 
 app.use((req, res) => {
