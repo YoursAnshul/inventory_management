@@ -8,7 +8,7 @@ const userController = require('./routers/user-controller.js');
 const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
 require('dotenv').config({ path: envFile });
 const categoryController = require('./routers/category-controller.js');
-
+const customerController = require('./routers/customer-controller.js');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const crypto = require('crypto');
@@ -213,6 +213,13 @@ app.put('/update-category/:id', authenticateToken, categoryController.updateCate
 app.delete('/delete-category/:id', authenticateToken, categoryController.deleteCategory);
 app.get('/list-categories', authenticateToken, categoryController.listCategories);
 app.get('/category/:id', authenticateToken, categoryController.getCategoryDetails);
+
+// Customer module
+// app.get('/categories', authenticateToken, customerController.getCategories);
+app.post('/add-customer', authenticateToken, customerController.addCustomer);
+app.put('/update-customer/:customerId', authenticateToken, customerController.updateCustomer);
+app.delete('/delete-customer/:customerId', authenticateToken, customerController.deleteCustomer);
+app.get('/list-customers', authenticateToken, customerController.listCustomers);
 
 
 app.use((req, res) => {
