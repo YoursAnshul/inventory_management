@@ -13,6 +13,8 @@ import Main from "../components/Main";
 import { RootState } from "../config/Store";
 import { UserState } from "../reducer/AuthReducer";
 import { useSelector } from "react-redux";
+import Dashboard from "../pages/Dashboard/Dashboard";
+import CategoryManagement from "../pages/Category-Management/category";
 const Navigation = () => {
   interface ProtectedRouteProps extends RoutesProps {
     isAuthenticated: boolean;
@@ -49,7 +51,7 @@ const Navigation = () => {
             element={
               <Suspense fallback={<></>}>
                 {defaultProtectedRouteProps.isAuthenticated ||
-                login.loginSuccess ? (
+                  login.loginSuccess ? (
                   <Navigate replace to="/dashboard" />
                 ) : (
                   <Login />
@@ -61,7 +63,7 @@ const Navigation = () => {
             path="/"
             element={
               defaultProtectedRouteProps.isAuthenticated ||
-              login.loginSuccess ? (
+                login.loginSuccess ? (
                 <Navigate replace to="/dashboard" />
               ) : (
                 <Navigate replace to="/login" />
@@ -86,7 +88,15 @@ const Navigation = () => {
                 </Suspense>
               }
             />
-
+            <Route
+              path="/dashboard"
+              element={
+                <Suspense fallback={<></>}>
+                  {" "}
+                  <Dashboard />{" "}
+                </Suspense>
+              }
+            />
             <Route
               path="/feedback"
               element={
@@ -102,6 +112,15 @@ const Navigation = () => {
                 <Suspense fallback={<></>}>
                   {" "}
                   <Feedbackdetails />{" "}
+                </Suspense>
+              }
+            />
+            <Route
+              path="/category-management"
+              element={
+                <Suspense fallback={<></>}>
+                  {" "}
+                  <CategoryManagement />{" "}
                 </Suspense>
               }
             />
