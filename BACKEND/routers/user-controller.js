@@ -102,6 +102,7 @@ exports.getUserList = (req, res) => {
     });
 };
 
+
 // Update active user
 exports.updateUser = (req, res) => {
     const { userId } = req.params;
