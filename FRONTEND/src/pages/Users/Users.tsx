@@ -44,10 +44,6 @@ const headers: GridHeader[] = [
     class: "text-center",
   },
   {
-    title: "Permission",
-    class: "text-center",
-  },
-  {
     title: "Action",
     class: "text-center",
   },
@@ -86,7 +82,6 @@ const Users = () => {
   const [type, setType] = useState("password");
   const [icon, setIcon] = useState<any>(BsEyeSlash);
   const [showPassword, setShowPassword] = useState<any>();
-  const [permissionList, setPermissionList] = useState<any[]>([]);
   const pageCount = useRef<number>(0);
   const [ShowLoader, setShowLoader] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
@@ -103,22 +98,15 @@ const Users = () => {
         break;
       }
     }
-    if (userInfoData?.user_info?.permission) {
-      if (
-        userInfoData?.user_info?.permission === "VIEW_EDIT" ||
-        userInfoData?.user_info?.permission === "ALL"
-      ) {
-        if (!exist) {
-          headers.push({ title: "Action", class: "text-center" });
-        }
+    {
+      if (!exist) {
+        headers.push({ title: "Action", class: "text-center" });
       }
     }
-  }, [userInfoData?.user_info?.permission]);
+  }, []);
   useEffect(() => {
     let roleValue = [
-      { id: "MANAGER", role: "Manager" },
       { id: "ADMIN", role: "Admin" },
-      { id: "SERVICE_ENGINEER", role: "Service Engineer" },
     ];
     let temp1: any[] = [];
     for (let i in roleValue) {
@@ -129,23 +117,8 @@ const Users = () => {
       });
     }
     setRoleList(temp1);
-
-    let permissionValue = [
-      { id: "VIEW", permission: "View" },
-      { id: "VIEW_EDIT", permission: "View Edit" },
-      { id: "ALL", permission: "All" },
-    ];
-    let temp2: any[] = [];
-    for (let i in permissionValue) {
-      temp2.push({
-        ...permissionValue[i],
-        value: permissionValue[i].permission,
-        id: permissionValue[i].id,
-      });
-    }
-    setPermissionList(temp2);
     getUserList(1);
-  }, [userInfoData?.user_info?.isVendor]);
+  }, []);
 
   const addUser = (data: any) => {
     if (data.id) {
@@ -232,17 +205,7 @@ const Users = () => {
               ? HelperService.getRoleValue(res.data[i].role)
               : "N/A",
           });
-          columns.push({
-            value: res.data[i].permission
-              ? HelperService.getPermissionValue(res.data[i].permission)
-              : "N/A",
-          });
-          if (
-            userInfoData?.user_info?.permission === "VIEW_EDIT" ||
-            userInfoData?.user_info?.permission === "ALL"
-          ) {
-            columns.push({ value: actionList(res.data[i]), type: "COMPONENT" });
-          }
+          columns.push({ value: actionList(res.data[i]), type: "COMPONENT" });
           rowCompute.current.push({ data: columns });
           rows.push({ data: columns });
         }
@@ -258,41 +221,36 @@ const Users = () => {
     return (
       <div className="action-btns">
         <div>
-          {userInfoData?.user_info?.permission === "ALL" ||
-            userInfoData?.user_info?.permission === "VIEW_EDIT" ? (
-            <button
-              type="button"
-              onClick={() => onEdit(value)}
-              className="btn btn-edit editicon"
-              data-toggle="tooltip"
-              data-placement="top"
-              title="Edit"
-            >
-              <span>
-                <Link to="#">
-                  <MdModeEditOutline className="editicon" />
-                </Link>
-              </span>
-            </button>
-          ) : null}
+          <button
+            type="button"
+            onClick={() => onEdit(value)}
+            className="btn btn-edit editicon"
+            data-toggle="tooltip"
+            data-placement="top"
+            title="Edit"
+          >
+            <span>
+              <Link to="#">
+                <MdModeEditOutline className="editicon" />
+              </Link>
+            </span>
+          </button>
         </div>
 
         <div>
-          {userInfoData?.user_info?.permission === "ALL" ? (
-            <button
-              className="btn btn-delete"
-              onClick={() => onConfirmDelete(value)}
-              data-toggle="tooltip"
-              data-placement="top"
-              title="Delete"
-            >
-              <span>
-                <Link to="#">
-                  <FaTrashAlt className="trashicon" />
-                </Link>
-              </span>
-            </button>
-          ) : null}
+          <button
+            className="btn btn-delete"
+            onClick={() => onConfirmDelete(value)}
+            data-toggle="tooltip"
+            data-placement="top"
+            title="Delete"
+          >
+            <span>
+              <Link to="#">
+                <FaTrashAlt className="trashicon" />
+              </Link>
+            </span>
+          </button>
         </div>
       </div>
     );
@@ -334,14 +292,11 @@ const Users = () => {
             <h5 className="mb-0">User Management</h5>
           </span>
           <div>
-            {userInfoData?.user_info?.permission === "VIEW_EDIT" ||
-              userInfoData?.user_info?.permission === "ALL" ? (
-              <span className="col-2 text-end ml-2">
-                <Button variant="success" onClick={handleShow}>
-                  + Add
-                </Button>
-              </span>
-            ) : null}
+            <span className="col-2 text-end ml-2">
+              <Button variant="success" onClick={handleShow}>
+                + Add
+              </Button>
+            </span>
           </div>
         </div>
         <DeleteModal
@@ -669,39 +624,6 @@ const Users = () => {
                   )}
                 </div>
               </div>
-              <div className="col-lg-6">
-                <div className="time-pickers position-relative w-100-mob w-100">
-                  <Controller
-                    control={control}
-                    name="permission"
-                    rules={{
-                      required: true,
-                    }}
-                    render={({ field }) => (
-                      <Form.Group className="mb-1">
-                        <label className="mb-2 mt-2">{"Permission"}</label>
-                        <span className="text-danger">*</span>
-                        <VendorSelect
-                          onChange={(e: any) => {
-                            field.onChange(e.id);
-                          }}
-                          isSearchable={true}
-                          options={permissionList}
-                          selected={watchAllFields.permission}
-                        />
-                      </Form.Group>
-                    )}
-                  />
-                  {errors.permission && (
-                    <div className="login-error mt-3">
-                      <Label
-                        title={"Please Select Permission"}
-                        modeError={true}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
 
             <Button
@@ -716,7 +638,7 @@ const Users = () => {
         <Modal.Footer></Modal.Footer>
       </Modal>
     </>
-    
+
   );
 };
 
