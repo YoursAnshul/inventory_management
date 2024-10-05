@@ -224,6 +224,10 @@ app.get('/list-customers', authenticateToken, customerController.listCustomers);
 // Inventory management
 app.get('/categories', authenticateToken, inventoryController.getCategories);
 app.get('/customers', authenticateToken, inventoryController.getCustomers);
+app.post('/inventory', authenticateToken, inventoryController.addInventory);
+app.put('/inventory', authenticateToken, inventoryController.updateInventory);
+app.get('/inventory', authenticateToken, inventoryController.getInventory);
+app.get('/inventory/transactions', authenticateToken, inventoryController.getInventoryTransactions);
 
 app.use((req, res) => {
     res.status(404).json({ success: false, message: 'Route not found' });
