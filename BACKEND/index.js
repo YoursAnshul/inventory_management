@@ -223,14 +223,17 @@ app.delete('/delete-customer/:customerId', authenticateToken, customerController
 app.get('/list-customers', authenticateToken, customerController.listCustomers);
 
 // Inventory management
-app.get('/categories', authenticateToken, inventoryController.getCategories);
-app.get('/customers', authenticateToken, inventoryController.getCustomers);
+// Inventory Routes
 app.post('/inventory', authenticateToken, inventoryController.addInventory);
-app.put('/inventory/:inventoryId', authenticateToken, inventoryController.updateInventory);
-app.delete('/inventory/:inventoryId', authenticateToken, inventoryController.deleteInventory);
+app.put('/inventory/:id', authenticateToken, inventoryController.updateInventory);
+app.delete('/inventory/:id', authenticateToken, inventoryController.deleteInventory);
 app.get('/inventory', authenticateToken, inventoryController.listInventory);
+// Inventory Transaction Routes
 app.post('/inventory/transaction', authenticateToken, inventoryController.inventoryTransaction);
 app.get('/inventory/transactions', authenticateToken, inventoryController.listInventoryTransactions);
+// Category and Customer Routes
+app.get('/categories', authenticateToken, inventoryController.getCategories);
+app.get('/customers', authenticateToken, inventoryController.getCustomers);
 
 
 app.use((req, res) => {

@@ -1,42 +1,35 @@
 const connection = require('./db-connection.js');
 
-
+// Get all categories
 exports.getCategories = (req, res) => {
-    const query = `SELECT id , name  FROM categories where status='ACTIVE'`;
+    const query = `SELECT id, name FROM categories WHERE status = 'ACTIVE'`;
 
     connection.db.execute(query, (err, results) => {
         if (err) {
             return res.status(500).json({ success: false, message: 'Database query error' });
         }
-
-        res.status(200).json({
-            success: true,
-            data: results,
-        });
+        res.status(200).json({ success: true, data: results });
     });
-}
+};
 
+// Get all customers
 exports.getCustomers = (req, res) => {
-    const query = `SELECT id , name  FROM customers where status='ACTIVE'`;
+    const query = `SELECT id, name FROM customers WHERE status = 'ACTIVE'`;
 
     connection.db.execute(query, (err, results) => {
         if (err) {
             return res.status(500).json({ success: false, message: 'Database query error' });
         }
-
-        res.status(200).json({
-            success: true,
-            data: results,
-        });
+        res.status(200).json({ success: true, data: results });
     });
-}
+};
 
-
+// Add a new inventory
 exports.addInventory = (req, res) => {
-    const { name, category_id, qty, price, customer_id } = req.body;
+    const { name, category_id, price } = req.body;
 
-    if (!name || !category_id || !qty) {
-        return res.status(400).json({ success: false, message: 'Name, Category, and Quantity are required' });
+    if (!name || !category_id) {
+        return res.status(400).json({ success: false, message: 'Name and Category are required' });
     }
 
     const checkDuplicateQuery = `SELECT id FROM inventory WHERE name = ? AND category_id = ? AND status = 'ACTIVE'`;
@@ -49,8 +42,8 @@ exports.addInventory = (req, res) => {
             return res.status(400).json({ success: false, message: 'Inventory with this name and category already exists' });
         }
 
-        const insertInventoryQuery = `INSERT INTO inventory (name, category_id, qty, price, status) VALUES (?, ?, ?, ?, 'ACTIVE')`;
-        connection.db.execute(insertInventoryQuery, [name, category_id, qty, price], (err, results) => {
+        const insertInventoryQuery = `INSERT INTO inventory (name, category_id, price, status) VALUES (?, ?, ?, 'ACTIVE')`;
+        connection.db.execute(insertInventoryQuery, [name, category_id, price], (err) => {
             if (err) {
                 return res.status(500).json({ success: false, message: 'Error adding inventory' });
             }
@@ -59,13 +52,13 @@ exports.addInventory = (req, res) => {
     });
 };
 
-
+// Update inventory
 exports.updateInventory = (req, res) => {
-    const { inventoryId } = req.params;
-    const { name, category_id, qty, price, status } = req.body;
+    const { id } = req.params;
+    const { name, category_id, price } = req.body;
 
-    const updateQuery = `UPDATE inventory SET name = ?, category_id = ?, qty = ?, price = ?, status = ? WHERE id = ?`;
-    connection.db.execute(updateQuery, [name, category_id, qty, price, status, inventoryId], (err, results) => {
+    const updateQuery = `UPDATE inventory SET name = ?, category_id = ?, price = ?, status = 'ACTIVE' WHERE id = ?`;
+    connection.db.execute(updateQuery, [name, category_id, price, id], (err, results) => {
         if (err) {
             return res.status(500).json({ success: false, message: 'Database query error' });
         }
@@ -78,12 +71,12 @@ exports.updateInventory = (req, res) => {
     });
 };
 
-
+// Delete inventory (soft delete)
 exports.deleteInventory = (req, res) => {
-    const { inventoryId } = req.params;
+    const { id } = req.params;
 
     const deleteQuery = `UPDATE inventory SET status = 'DELETED' WHERE id = ?`;
-    connection.db.execute(deleteQuery, [inventoryId], (err, results) => {
+    connection.db.execute(deleteQuery, [id], (err, results) => {
         if (err) {
             return res.status(500).json({ success: false, message: 'Database query error' });
         }
@@ -96,8 +89,7 @@ exports.deleteInventory = (req, res) => {
     });
 };
 
-
-
+// List all inventories with pagination
 exports.listInventory = (req, res) => {
     let { page, keyword, date_from, date_to } = req.query;
     const limit = 10;
@@ -108,34 +100,61 @@ exports.listInventory = (req, res) => {
     }
 
     const offset = (page - 1) * limit;
-    let query = `SELECT id, name, category_id, qty, price, status, created_at, updated_at FROM inventory WHERE status = 'ACTIVE'`;
+
+    let query = `
+        SELECT 
+            inv.id, 
+            inv.name, 
+            inv.category_id, 
+            inv.price, 
+            inv.status, 
+            inv.created_at, 
+            inv.updated_at, 
+            COALESCE(SUM(CASE WHEN it.type = 'IN' THEN it.qty ELSE 0 END), 0) -
+            COALESCE(SUM(CASE WHEN it.type = 'OUT' THEN it.qty ELSE 0 END), 0) AS available_qty,
+            c.name AS category_name
+        FROM 
+            inventory inv
+        LEFT JOIN 
+            inventory_transactions it ON inv.id = it.inventory_id
+        LEFT JOIN 
+            categories c ON inv.category_id = c.id
+        WHERE 
+            inv.status = 'ACTIVE'
+    `;
+    
     let queryParams = [];
 
     if (keyword) {
-        query += ` AND name LIKE ?`;
+        query += ` AND inv.name LIKE ?`;
         queryParams.push(`%${keyword}%`);
     }
     if (date_from) {
-        query += ` AND created_at >= ?`;
+        query += ` AND inv.created_at >= ?`;
         queryParams.push(date_from);
     }
     if (date_to) {
-        query += ` AND created_at <= ?`;
+        query += ` AND inv.created_at <= ?`;
         queryParams.push(date_to);
     }
 
-    query += ` LIMIT ${limit} OFFSET ${offset}`;
+    query += `
+        GROUP BY 
+            inv.id, inv.name, inv.category_id, inv.price, inv.status, inv.created_at, inv.updated_at, c.name
+        LIMIT ${limit} OFFSET ${offset}
+    `;
 
     connection.db.execute(query, queryParams, (err, results) => {
         if (err) {
             return res.status(500).json({ success: false, message: 'Database query error' });
         }
 
-        res.status(200).json({ success: true, data: results });
+        const formattedResults = results.map(item => ({
+            ...item        }));
+
+        res.status(200).json({ success: true, data: formattedResults });
     });
 };
-
-
 
 exports.inventoryTransaction = (req, res) => {
     const { inventory_id, type, qty, customer_id } = req.body;
@@ -144,54 +163,47 @@ exports.inventoryTransaction = (req, res) => {
         return res.status(400).json({ success: false, message: 'Invalid input data' });
     }
 
-    const checkInventoryQuery = `SELECT id, qty FROM inventory WHERE id = ? AND status = 'ACTIVE'`;
-    connection.db.execute(checkInventoryQuery, [inventory_id], (err, results) => {
+    const stockQuery = `
+        SELECT 
+            SUM(CASE WHEN type = 'IN' THEN qty ELSE -qty END) AS stock 
+        FROM inventory_transactions 
+        WHERE inventory_id = ?
+    `;
+
+    connection.db.execute(stockQuery, [inventory_id], (err, results) => {
         if (err) {
             return res.status(500).json({ success: false, message: 'Database query error' });
         }
 
-        if (results.length === 0) {
-            return res.status(404).json({ success: false, message: 'Inventory not found' });
-        }
+        const currentStock = results[0].stock || 0;
 
-        const currentQty = results[0].qty;
-        const newQty = type === 'IN' ? currentQty + qty : currentQty - qty;
-
-        if (newQty < 0) {
+        if (type === 'OUT' && currentStock < qty) {
             return res.status(400).json({ success: false, message: 'Insufficient quantity for OUT transaction' });
         }
 
-        const updateQtyQuery = `UPDATE inventory SET qty = ? WHERE id = ?`;
-        connection.db.execute(updateQtyQuery, [newQty, inventory_id], (err) => {
+        const insertTransactionQuery = `INSERT INTO inventory_transactions (inventory_id, type, qty, customer_id) VALUES (?, ?, ?, ?)`;
+        connection.db.execute(insertTransactionQuery, [inventory_id, type, qty, customer_id], (err) => {
             if (err) {
-                return res.status(500).json({ success: false, message: 'Database update error' });
+                return res.status(500).json({ success: false, message: 'Transaction logging error' });
             }
 
-            const insertTransactionQuery = `INSERT INTO inventory_transactions (inventory_id, type, qty, customer_id) VALUES (?, ?, ?, ?)`;
-            connection.db.execute(insertTransactionQuery, [inventory_id, type, qty, customer_id], (err) => {
-                if (err) {
-                    return res.status(500).json({ success: false, message: 'Transaction logging error' });
-                }
-
-                res.status(201).json({ success: true, message: 'Transaction recorded successfully' });
-            });
+            res.status(201).json({ success: true, message: 'Transaction recorded successfully' });
         });
     });
 };
 
 
-
 exports.listInventoryTransactions = (req, res) => {
     let { page, inventory_id, type, customer_id } = req.query;
 
-    const limit = 10;
+    const limit = 10; 
     page = page ? parseInt(page, 10) : 1;
 
     if (isNaN(page) || page < 1) {
         return res.status(400).json({ success: false, message: 'Invalid page value' });
     }
 
-    const offset = (page - 1) * limit;
+    const offset = (page - 1) * limit; 
 
     let listQuery = `
         SELECT it.id, i.name as inventory_name, it.type, it.qty, c.name as customer_name, it.created_at 
@@ -201,11 +213,7 @@ exports.listInventoryTransactions = (req, res) => {
         WHERE 1 = 1
     `;
 
-    let countQuery = `
-        SELECT COUNT(it.id) AS total 
-        FROM inventory_transactions it 
-        WHERE 1 = 1
-    `;
+    let countQuery = `SELECT COUNT(it.id) AS total FROM inventory_transactions it WHERE 1 = 1`;
 
     let queryParams = [];
 
@@ -227,30 +235,28 @@ exports.listInventoryTransactions = (req, res) => {
         queryParams.push(customer_id);
     }
 
-    listQuery += ` LIMIT ${limit} OFFSET ${offset}`;
+    listQuery += ` ORDER BY it.created_at DESC LIMIT ${limit} OFFSET ${offset}`;
 
-    connection.db.execute(countQuery, queryParams, (err, countResults) => {
+    connection.db.execute(countQuery, queryParams.slice(0, queryParams.length - 2), (err, countResults) => {
         if (err) {
             return res.status(500).json({ success: false, message: 'Database query error' });
         }
 
-        const totalItems = countResults[0].total;
-        const totalPages = Math.ceil(totalItems / limit);
+        const total = countResults[0].total;
 
-        connection.db.execute(listQuery, queryParams, (err, listResults) => {
+        connection.db.execute(listQuery, queryParams, (err, results) => {
             if (err) {
                 return res.status(500).json({ success: false, message: 'Database query error' });
             }
 
             res.status(200).json({
                 success: true,
-                data: listResults,
+                data: results,
                 pagination: {
-                    currentPage: page,
-                    totalItems,
-                    totalPages,
-                    limit
-                }
+                    total,
+                    page,
+                    totalPages: Math.ceil(total / limit),
+                },
             });
         });
     });
