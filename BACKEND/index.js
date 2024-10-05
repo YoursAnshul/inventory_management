@@ -10,6 +10,7 @@ require('dotenv').config({ path: envFile });
 const categoryController = require('./routers/category-controller.js');
 const customerController = require('./routers/customer-controller.js');
 const inventoryController = require('./routers/inventory-controller.js');
+const dashboardController = require('./routers/dashboard-controller.js');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const crypto = require('crypto');
@@ -236,6 +237,9 @@ app.get('/inventory/transactions', authenticateToken, inventoryController.listIn
 // Category and Customer Routes
 app.get('/categories', authenticateToken, inventoryController.getCategories);
 app.get('/customers', authenticateToken, inventoryController.getCustomers);
+
+//Dashboard
+app.get('/dashboard', authenticateToken, dashboardController.getDashboardData);
 
 
 app.use((req, res) => {
