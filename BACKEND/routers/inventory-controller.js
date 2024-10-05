@@ -90,17 +90,7 @@ exports.deleteInventory = (req, res) => {
 };
 
 // List all inventories with pagination
-exports.listInventory = (req, res) => {
-    let { page, keyword, date_from, date_to } = req.query;
-    const limit = 10;
-    page = page ? parseInt(page, 10) : 1;
-
-    if (isNaN(page) || page < 1) {
-        return res.status(400).json({ success: false, message: 'Invalid page value' });
-    }
-
-    const offset = (page - 1) * limit;
-
+exports.listInventoryDetails = (req, res) => {
     let query = `
         SELECT 
             inv.id, 
@@ -125,34 +115,118 @@ exports.listInventory = (req, res) => {
     
     let queryParams = [];
 
-    if (keyword) {
-        query += ` AND inv.name LIKE ?`;
-        queryParams.push(`%${keyword}%`);
-    }
-    if (date_from) {
-        query += ` AND inv.created_at >= ?`;
-        queryParams.push(date_from);
-    }
-    if (date_to) {
-        query += ` AND inv.created_at <= ?`;
-        queryParams.push(date_to);
-    }
 
     query += `
         GROUP BY 
             inv.id, inv.name, inv.category_id, inv.price, inv.status, inv.created_at, inv.updated_at, c.name
-        LIMIT ${limit} OFFSET ${offset}
     `;
 
     connection.db.execute(query, queryParams, (err, results) => {
         if (err) {
             return res.status(500).json({ success: false, message: 'Database query error' });
         }
+        res.status(200).json({ success: true, data: results });
+    });
+};
 
-        const formattedResults = results.map(item => ({
-            ...item        }));
 
-        res.status(200).json({ success: true, data: formattedResults });
+// List all inventories with pagination
+exports.listInventory = (req, res) => {
+    let { page, keyword, date_from, date_to } = req.query;
+    const limit = 10;
+    page = page ? parseInt(page, 10) : 1;
+
+    if (isNaN(page) || page < 1) {
+        return res.status(400).json({ success: false, message: 'Invalid page value' });
+    }
+
+    const offset = (page - 1) * limit;
+
+    let listQuery = `
+        SELECT 
+            inv.id, 
+            inv.name, 
+            inv.category_id, 
+            inv.price, 
+            inv.status, 
+            inv.created_at, 
+            inv.updated_at, 
+            COALESCE(SUM(CASE WHEN it.type = 'IN' THEN it.qty ELSE 0 END), 0) - 
+            COALESCE(SUM(CASE WHEN it.type = 'OUT' THEN it.qty ELSE 0 END), 0) AS available_qty,
+            c.name AS category_name
+        FROM 
+            inventory inv
+        LEFT JOIN 
+            inventory_transactions it ON inv.id = it.inventory_id
+        LEFT JOIN 
+            categories c ON inv.category_id = c.id
+        WHERE 
+            inv.status = 'ACTIVE'
+    `;
+
+    let countQuery = `
+        SELECT COUNT(*) AS total FROM (
+            SELECT inv.id 
+            FROM inventory inv 
+            LEFT JOIN inventory_transactions it ON inv.id = it.inventory_id
+            LEFT JOIN categories c ON inv.category_id = c.id 
+            WHERE inv.status = 'ACTIVE'
+    `;
+    
+    let queryParams = [];
+
+    if (keyword) {
+        listQuery += ` AND inv.name LIKE ?`;
+        countQuery += ` AND inv.name LIKE ?`;
+        queryParams.push(`%${keyword}%`);
+    }
+    if (date_from) {
+        listQuery += ` AND inv.created_at >= ?`;
+        countQuery += ` AND inv.created_at >= ?`;
+        queryParams.push(date_from);
+    }
+    if (date_to) {
+        listQuery += ` AND inv.created_at <= ?`;
+        countQuery += ` AND inv.created_at <= ?`;
+        queryParams.push(date_to);
+    }
+
+    listQuery  += `
+        GROUP BY 
+            inv.id, inv.name, inv.category_id, inv.price, inv.status, inv.created_at, inv.updated_at, c.name
+        LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    countQuery  += `
+        GROUP BY 
+            inv.id, inv.name, inv.category_id, inv.price, inv.status, inv.created_at, inv.updated_at, c.name
+        ) as z
+    `;
+
+    connection.db.execute(countQuery, queryParams, (err, countResults) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: 'Database query error' });
+        }
+
+        const totalItems = countResults[0].total;
+        const totalPages = Math.ceil(totalItems / limit);
+
+        connection.db.execute(listQuery, queryParams, (err, listResults) => {
+            if (err) {
+                return res.status(500).json({ success: false, message: 'Database query error' });
+            }
+
+            res.status(200).json({
+                success: true,
+                data: listResults,
+                pagination: {
+                    currentPage: page,
+                    totalItems,
+                    totalPages,
+                    limit
+                }
+            });
+        });
     });
 };
 
