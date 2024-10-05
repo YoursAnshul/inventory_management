@@ -26,7 +26,6 @@ const Navigation = () => {
     (state: any) => state.userLogin
   );
 
-  // element = { defaultProtectedRouteProps.isAuthenticated || login.loginSuccess ? (<Navigate replace to="/dashboard" />) : item.component }
 
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, "outlet"> = {
     isAuthenticated: localStorage.getItem("token") != null,
@@ -34,13 +33,7 @@ const Navigation = () => {
   };
 
   const Login = React.lazy(() => import("../components/Login/Login"));
-
   const Users = React.lazy(() => import("../pages/Users/Users"));
-
-  const Feedback = React.lazy(() => import("../pages/Feedback/Feedback"));
-  const Feedbackdetails = React.lazy(
-    () => import("../pages/Feedbackdetails/Feedbackdetails")
-  );
 
 
   return (
@@ -99,24 +92,6 @@ const Navigation = () => {
               }
             />
             <Route
-              path="/feedback"
-              element={
-                <Suspense fallback={<></>}>
-                  {" "}
-                  <Feedback />{" "}
-                </Suspense>
-              }
-            />
-            <Route
-              path="/feedbackdetails"
-              element={
-                <Suspense fallback={<></>}>
-                  {" "}
-                  <Feedbackdetails />{" "}
-                </Suspense>
-              }
-            />
-            <Route
               path="/category-management"
               element={
                 <Suspense fallback={<></>}>
@@ -125,7 +100,7 @@ const Navigation = () => {
                 </Suspense>
               }
             />
-             <Route
+            <Route
               path="/customer-management"
               element={
                 <Suspense fallback={<></>}>
