@@ -21,6 +21,7 @@ const VerticalMenu = () => {
             <div id="vertical_menu" className="verticle-menu">
                 <div className="menu-list">
                     <Link id="t-1" to={'/dashboard'} className="menu-item"> <RxDashboard className="menu-icon" /> <span className='nav-text'>Dashboard</span></Link>
+                    <Link id="t-1" to={'/inventory-management'} className="menu-item"> <RxDashboard className="menu-icon" /> <span className='nav-text'>Inventory Management</span></Link>
                     <Link id="t-1" to={'/category-management'} className="menu-item"><VscFeedback className="menu-icon" />  <span className='nav-text'>Category-Management</span></Link>
                     <Link id="t-1" to={'/customer-management'} className="menu-item"><LuUsers className="menu-icon" />  <span className='nav-text'>Customer-Management</span></Link>
                     <Link id="t-1" to={'/users'} className="menu-item"> <LuUsers className="menu-icon" /> <span className='nav-text'>User Management</span></Link>

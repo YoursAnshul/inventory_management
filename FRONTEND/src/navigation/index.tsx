@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import CategoryManagement from "../pages/Category-Management/category";
 import CustomerManagement from "../pages/Customer-Management/Customer-Management";
+import InventoryManagement from "../pages/Invetory-Management/inventory.tab";
 const Navigation = () => {
   interface ProtectedRouteProps extends RoutesProps {
     isAuthenticated: boolean;
@@ -106,6 +107,15 @@ const Navigation = () => {
                 <Suspense fallback={<></>}>
                   {" "}
                   <CustomerManagement />{" "}
+                </Suspense>
+              }
+            />
+             <Route
+              path="/inventory-management"
+              element={
+                <Suspense fallback={<></>}>
+                  {" "}
+                  <InventoryManagement />{" "}
                 </Suspense>
               }
             />
