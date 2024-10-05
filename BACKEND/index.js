@@ -9,6 +9,7 @@ const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
 require('dotenv').config({ path: envFile });
 const categoryController = require('./routers/category-controller.js');
 const customerController = require('./routers/customer-controller.js');
+const inventoryController = require('./routers/inventory-controller.js');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const crypto = require('crypto');
@@ -215,12 +216,14 @@ app.get('/list-categories', authenticateToken, categoryController.listCategories
 app.get('/category/:id', authenticateToken, categoryController.getCategoryDetails);
 
 // Customer module
-// app.get('/categories', authenticateToken, customerController.getCategories);
 app.post('/add-customer', authenticateToken, customerController.addCustomer);
 app.put('/update-customer/:customerId', authenticateToken, customerController.updateCustomer);
 app.delete('/delete-customer/:customerId', authenticateToken, customerController.deleteCustomer);
 app.get('/list-customers', authenticateToken, customerController.listCustomers);
 
+// Inventory management
+app.get('/categories', authenticateToken, inventoryController.getCategories);
+app.get('/customers', authenticateToken, inventoryController.getCustomers);
 
 app.use((req, res) => {
     res.status(404).json({ success: false, message: 'Route not found' });

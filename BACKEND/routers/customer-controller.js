@@ -99,7 +99,7 @@ exports.listCustomers = (req, res) => {
 
     const offset = (page - 1) * limit;
 
-    let listQuery = `SELECT id, name, created_at, updated_at, status FROM customers WHERE status = ?`;
+    let listQuery = `SELECT id, name, created_at, updated_at, status,email,mobile_number FROM customers WHERE status = ?`;
     let countQuery = `SELECT COUNT(id) AS total FROM customers WHERE status = ?`;
     let queryParams = ['ACTIVE'];
 
