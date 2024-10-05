@@ -206,6 +206,7 @@ app.post('/add-user', authenticateToken, userController.addUser);
 app.get('/users', authenticateToken, userController.getUserList);
 app.put('/update-user/:userId', authenticateToken, userController.updateUser);
 app.delete('/delete-user/:userId', authenticateToken, userController.deletUser);
+app.post('/sign-up', userController.addSingUpUser);
 
 
 // category

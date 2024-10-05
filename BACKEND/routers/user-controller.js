@@ -71,6 +71,60 @@ exports.addUser = (req, res) => {
   });
 };
 
+// Add sign up user
+exports.addSingUpUser = (req, res) => {
+  const { first_name, last_name, mobile_number, email, password } = req.body;
+  if (!first_name || !last_name || !mobile_number || !email || !password) {
+    return res
+      .status(400)
+      .json({ success: false, message: "All fields are required" });
+  }
+  const checkUserQuery =
+    "SELECT email FROM users WHERE email = ? AND status = ?";
+  connection.db.execute(checkUserQuery, [email, "ACTIVE"], (err, results) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Database query error" });
+    }
+
+    if (results.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "User with this email already exists",
+      });
+    }
+    const insertUserQuery =
+      "INSERT INTO users (first_name, last_name, mobile_number, email, password, role, created_at, status) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)";
+    const hashedPassword = bcrypt.hashSync(password, 8);
+    connection.db.execute(
+      insertUserQuery,
+      [
+        first_name,
+        last_name,
+        mobile_number,
+        email,
+        hashedPassword,
+        "ADMIN",
+        "ACTIVE",
+      ],
+      (err, results) => {
+        if (err) {
+          console.error("Error registering user:", err);
+          return res
+            .status(500)
+            .json({ success: false, message: "Error registering user" });
+        }
+
+        res
+          .status(201)
+          .json({ success: true, message: "User registered successfully" });
+      }
+    );
+  });
+};
+
 // Get active users list
 exports.getUserList = (req, res) => {
   let { page, keyword, date_from, date_to } = req.query;

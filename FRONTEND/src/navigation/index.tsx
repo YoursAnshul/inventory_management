@@ -35,6 +35,7 @@ const Navigation = () => {
 
   const Login = React.lazy(() => import("../components/Login/Login"));
   const Users = React.lazy(() => import("../pages/Users/Users"));
+  const SignUp = React.lazy(() => import("../components/Sign Up/SignUp"));
 
 
   return (
@@ -51,6 +52,16 @@ const Navigation = () => {
                 ) : (
                   <Login />
                 )}
+              </Suspense>
+            }
+          />
+           <Route
+            path="/signup"
+            element={
+              <Suspense fallback={<></>}>
+                
+                  <SignUp />
+                
               </Suspense>
             }
           />

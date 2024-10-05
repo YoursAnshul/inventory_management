@@ -45,7 +45,9 @@ const Login = () => {
 
             })
     }
-
+    const handleSignUp = () => {
+        navigate('/signup'); 
+    };
     const userMeCall = async (token: string) => {
         await WebService.getAPI({ action: "me", id: "login_btn" })
             .then((res: any) => {
@@ -54,7 +56,7 @@ const Login = () => {
                     dispatch({ type: USER_LOGIN_SUCCESS, payload: { access_token: token }, });
                     dispatch(setDataInRedux({ type: USER_INFO, value: res.user[0] }));
                     localStorage.setItem("token", token);
-                    localStorage.setItem("vendor_id", res.user[0].vendorId);                    
+                    localStorage.setItem("vendor_id", res.user[0].vendorId);
                     navigate("/dashboard")
                 } else {
                     localStorage.removeItem("token");
@@ -172,12 +174,14 @@ const Login = () => {
 
                                                         <div className="d-flex justify-content-between mb-3">
                                                             <Form.Check id="remember" label="Remember me" className='text-dark' />
-                                                            <Link to="" className="text-brand font-14">Forgot Password?</Link> 
+                                                            <Link to="" className="text-brand font-14">Forgot Password?</Link>
                                                         </div>
                                                     </div>
                                                     <div className="text-center ">
                                                         <Button type='submit' id='login_btn' disabled={!isValid} className="btn btn-brand-1 w-100">Login</Button>
-                                                        {/* <p className='text-white mt-3 mb-0'>Don't have an account?   <Link to="/signup" className="text-brand">Create an Account!</Link></p> */}
+                                                        <Button id="sign_up_btn" className="btn btn-brand-1 w-100 mt-2" onClick={handleSignUp}>
+                                                            <Link to="/signup" className="text-white">Sign Up</Link>
+                                                        </Button>
                                                     </div>
                                                 </form>
                                             </div>

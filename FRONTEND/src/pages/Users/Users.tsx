@@ -72,13 +72,13 @@ const Users = () => {
     getValues,
     register,
     reset,
+    setValue
   } = useForm<any>({});
   const dispatch: Dispatch<any> = useDispatch();
 
   const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
   const watchAllFields = watch();
   const [isEdit, setIsEdit] = useState(false);
-  const [roleList, setRoleList] = useState<any[]>([]);
   const [type, setType] = useState("password");
   const [icon, setIcon] = useState<any>(BsEyeSlash);
   const [showPassword, setShowPassword] = useState<any>();
@@ -89,7 +89,7 @@ const Users = () => {
   const rowCompute = useRef<GridRow[]>([]);
   const [editData, setEditData] = useState<any>();
   const [showDeleteModal, setDeleteModal] = useState<boolean>(false);
-
+  
   useEffect(() => {
     let exist = false;
     for (let i = 0; i < headers.length; i++) {
@@ -105,20 +105,9 @@ const Users = () => {
     }
   }, []);
   useEffect(() => {
-    let roleValue = [
-      { id: "ADMIN", role: "Admin" },
-    ];
-    let temp1: any[] = [];
-    for (let i in roleValue) {
-      temp1.push({
-        ...roleValue[i],
-        value: roleValue[i].role,
-        id: roleValue[i].id,
-      });
-    }
-    setRoleList(temp1);
+    setValue("role", "ADMIN"); 
     getUserList(1);
-  }, []);
+  }, [setValue]);
 
   const addUser = (data: any) => {
     if (data.id) {
@@ -592,37 +581,23 @@ const Users = () => {
 
             <div className="row">
               <div className="col-lg-6">
-                <div className="time-pickers position-relative w-100-mob w-100">
-                  <Controller
-                    control={control}
-                    name="role"
-                    rules={{
-                      required: true,
-                    }}
-                    render={({ field }) => (
-                      <Form.Group className="mb-1">
-                        <label className="mb-2 mt-2">{"Role"}</label>
-                        <span className="text-danger">*</span>
-                        <VendorSelect
-                          onChange={(e: any) => {
-                            field.onChange(e.id);
-                          }}
-                          isSearchable={true}
-                          options={roleList}
-                          selected={watchAllFields.role}
-                        />
-                      </Form.Group>
-                    )}
+                <label className="mt-2">Role</label>
+                <span className="text-danger">*</span>
+                <div className="input-group mb-1 mt-2">
+                  <input
+                    type="text"
+                    className="form-control ps-3 p-2"
+                    placeholder="Role"
+                    value="Admin"
+                    readOnly
+                    {...register("role", { required: true })}
                   />
-                  {errors.role && (
-                    <div className="login-error mt-3">
-                      <Label
-                        title={"Please Select Role"}
-                        modeError={true}
-                      />
-                    </div>
-                  )}
                 </div>
+                {errors.role && (
+                  <div className="login-error mt-2">
+                    <Label title={"Last Name required"} modeError={true} />
+                  </div>
+                )}
               </div>
             </div>
 
