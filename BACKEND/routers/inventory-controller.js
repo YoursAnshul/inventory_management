@@ -311,7 +311,7 @@ exports.listInventoryTransactions = (req, res) => {
 
     listQuery += ` ORDER BY it.created_at DESC LIMIT ${limit} OFFSET ${offset}`;
 
-    connection.db.execute(countQuery, queryParams.slice(0, queryParams.length - 2), (err, countResults) => {
+    connection.db.execute(countQuery, queryParams, (err, countResults) => {
         if (err) {
             return res.status(500).json({ success: false, message: 'Database query error' });
         }

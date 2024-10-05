@@ -12,7 +12,7 @@ import {
 
 import TabCurrent from "./inventory.in";
 import TabPast from "./inventory.out";
-import TabAvailable from "./inventory.available";
+import TabInventory from "./inventory";
 import { useSelector } from "react-redux";
 import { RootState } from "../../config/Store";
 import HelperService from "../../Services/HelperService";
@@ -32,7 +32,7 @@ const InventoryManagement = () => {
   const chargeStationId = queryParams.get('station_id');
 
 
-  const [activeTab, setActiveTab] = useState<string>("third");
+  const [activeTab, setActiveTab] = useState<string>("first");
 
   const commonData: any = useSelector<RootState, reduxState>(
     (state: any) => state.commonData
@@ -84,22 +84,22 @@ const InventoryManagement = () => {
                 <Nav variant="underline" className="tab-style-1">
                 <Nav.Item>
                     <Nav.Link
-                      onClick={() => setActiveTab("third")}
-                      eventKey="third">
-                      Available
-                    </Nav.Link>
-                  </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link
                       onClick={() => setActiveTab("first")}
                       eventKey="first">
-                      In
+                      Available
                     </Nav.Link>
                   </Nav.Item>
                   <Nav.Item>
                     <Nav.Link
                       onClick={() => setActiveTab("second")}
                       eventKey="second">
+                      In
+                    </Nav.Link>
+                  </Nav.Item>
+                  <Nav.Item>
+                    <Nav.Link
+                      onClick={() => setActiveTab("third")}
+                      eventKey="third">
                       Out
                     </Nav.Link>
                   </Nav.Item>
@@ -108,21 +108,13 @@ const InventoryManagement = () => {
             </Row>
             <Tab.Content>
               <Tab.Pane eventKey="first">
-                <TabCurrent/>
+                <TabInventory/>
               </Tab.Pane>
               <Tab.Pane eventKey="second">
-                <TabPast
-                  activeTab={activeTab}
-                  rolePermission={categoryData}
-                  click={countryClick}
-                />
+                <TabCurrent/>
               </Tab.Pane>
               <Tab.Pane eventKey="third">
-                <TabAvailable
-                  activeTab={activeTab}
-                  rolePermission={categoryData}
-                  click={countryClick}
-                />
+                <TabPast/>
               </Tab.Pane>
             </Tab.Content>
           </Tab.Container>

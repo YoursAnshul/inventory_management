@@ -36,12 +36,16 @@ const headers: GridHeader[] = [
     class: "text-center",
   },
   {
-    title: "Created Date",
+    title: "Category",
     class: "text-center",
-  }
+  },
+  {
+    title: "Action",
+    class: "text-center",
+  },
 ];
 
-const  InventoryOut = () => {
+const  Inventory = () => {
   const [show, setShow] = useState(false);
   const handleClose = () => {
     setShow(false);
@@ -72,7 +76,6 @@ const  InventoryOut = () => {
   const watchAllFields = watch();
   const [isEdit, setIsEdit] = useState(false);
   const [roleList, setRoleList] = useState<any[]>([]);
-  const [customerList, setCustomerList] = useState<any[]>([]);
   const [type, setType] = useState("password");
   const [icon, setIcon] = useState<any>(BsEyeSlash);
   const [showPassword, setShowPassword] = useState<any>();
@@ -85,9 +88,22 @@ const  InventoryOut = () => {
   const [showDeleteModal, setDeleteModal] = useState<boolean>(false);
 
   useEffect(() => {
+    let exist = false;
+    for (let i = 0; i < headers.length; i++) {
+      if (headers[i].title == "Action") {
+        exist = true;
+        break;
+      }
+    }
+    {
+      if (!exist) {
+        headers.push({ title: "Action", class: "text-center" });
+      }
+    }
+  }, []);
+  useEffect(() => {
     getUserList(1);
     getCategoryList();
-    getInventoryList();
   }, []);
 
   const addUser = (data: any) => {
@@ -100,31 +116,30 @@ const  InventoryOut = () => {
         .then((res: any) => {
           reset({});
           setShow(false);
-          toast.success("Inventory Updated Successfully");
+          toast.success("User Updated Successfully");
           dispatch(setDataInRedux({ type: UPDATE_ME_CALL, value: true }));
           getUserList(1);
         })
         .catch((e) => {
-          toast.error("Inventory Updatation Failed try again.");
+          toast.error("User Updatation Failed try again.");
         });
     } else {
-      data["type"] = "OUT";
-      WebService.postAPI({ action: "inventory/transaction", body: data, id: "add_user" })
+      WebService.postAPI({ action: "inventory", body: data, id: "add_user" })
         .then((res: any) => {
           reset({});
           setShow(false);
           getUserList(1);
-          toast.success("Inventory Created Successfully");
+          toast.success("User Created Successfully");
         })
         .catch(() => {
-          toast.error("Inventory Creation Failed try again.");
+          toast.error("User Creation Failed try again.");
         });
     }
   };
 
-  const getInventoryList = () => {
+  const getCategoryList = () => {
     WebService.getAPI({
-      action: `inventory-details`,
+      action: `categories`,
       body: {  },
     })
       .then((res: any) => {
@@ -143,27 +158,6 @@ const  InventoryOut = () => {
       });
   };
 
-  const getCategoryList = () => {
-    WebService.getAPI({
-      action: `customers`,
-      body: {  },
-    })
-      .then((res: any) => {
-          let temp1: any[] = [];
-          let roleValue: any[] = res.data;
-          for (let i in roleValue) {
-            temp1.push({
-              ...roleValue[i],
-              value: roleValue[i].name,
-              id: roleValue[i].id,
-            });
-          }
-          setCustomerList(temp1);
-      })
-      .catch((e) => {
-      });
-  };
-
   const getUserList = (
     page: number,
     keyword?: string,
@@ -173,9 +167,9 @@ const  InventoryOut = () => {
     pageCount.current = page;
     setShowLoader(true);
     WebService.getAPI({
-      action: `inventory/transactions?keyword=${keyword ? keyword : ""}&date_from=${startDate ? startDate : ""
+      action: `inventory?keyword=${keyword ? keyword : ""}&date_from=${startDate ? startDate : ""
         }&date_to=${endDate ? endDate : ""}`,
-      body: { page: page, type: "OUT" },
+      body: { page: page },
     })
       .then((res: any) => {
         setShowLoader(false);
@@ -186,22 +180,18 @@ const  InventoryOut = () => {
         for (var i in res.data) {
           let columns: GridColumn[] = [];
           columns.push({
-            value: res.data[i].inventory_name ? res.data[i].inventory_name : "N/A",
+            value: res.data[i].name ? res.data[i].name : "N/A",
           });
           columns.push({
-            value: res.data[i].qty ? res.data[i].qty : "N/A",
+            value: res.data[i].available_qty ? res.data[i].available_qty : "N/A",
           });
           columns.push({
-            value: res.data[i].customer_name ? res.data[i].customer_name : "N/A",
+            value: res.data[i].price ? res.data[i].price : "N/A",
           });
           columns.push({
-            value: res.data[i].created_at
-              ? HelperService.getFormatedDateForDetail(
-                res.data[i].created_at,
-                "MM/DD/YYYY"
-              )
-              : "N/A",
+            value: res.data[i].category_id ? res.data[i].category_id : "N/A",
           });
+          columns.push({ value: actionList(res.data[i]), type: "COMPONENT" });
           rowCompute.current.push({ data: columns });
           rows.push({ data: columns });
         }
@@ -213,6 +203,44 @@ const  InventoryOut = () => {
       });
   };
 
+  const actionList = (value: any) => {
+    return (
+      <div className="d-flex justify-content-center">
+        <div>
+          <button
+            type="button"
+            onClick={() => onEdit(value)}
+            className="btn btn-edit editicon"
+            data-toggle="tooltip"
+            data-placement="top"
+            title="Edit"
+          >
+            <span>
+              <Link to="#">
+                <MdModeEditOutline className="editicon" />
+              </Link>
+            </span>
+          </button>
+        </div>
+
+        <div>
+          <button
+            className="btn btn-delete"
+            onClick={() => onConfirmDelete(value)}
+            data-toggle="tooltip"
+            data-placement="top"
+            title="Delete"
+          >
+            <span>
+              <Link to="#">
+                <FaTrashAlt className="trashicon" />
+              </Link>
+            </span>
+          </button>
+        </div>
+      </div>
+    );
+  };
   const onEdit = (val: any) => {
     setEditData(val);
     reset(val);
@@ -227,7 +255,7 @@ const  InventoryOut = () => {
     setDeleteModal(false);
     setShowLoader(true);
     WebService.deleteAPI({
-      action: `delete-user/${editData?.id}`,
+      action: `inventory/${editData?.id}`,
       body: null,
     })
       .then((res: any) => {
@@ -252,7 +280,7 @@ const  InventoryOut = () => {
           <div>
             <span className="col-2 text-end ml-2">
               <Button variant="success" onClick={handleShow}>
-                + Out Inventory
+                + New Inventory
               </Button>
             </span>
           </div>
@@ -277,7 +305,7 @@ const  InventoryOut = () => {
             ShowLoader={ShowLoader}
             count={totalCount}
             onPageChange={getUserList}
-            errorMessage={"No Inventory Found"}
+            errorMessage={"No User Found"}
           />
         </div>
       </div>
@@ -288,19 +316,54 @@ const  InventoryOut = () => {
         </Modal.Header>
         <Modal.Body>
           <form className="mb-3" onSubmit={handleSubmit(addUser)}>
-          
+            <div className="row">
+              <div className="col-lg-6">
+                <label className="mt-2">Inventory Name</label>
+                <span className="text-danger">*</span>
+                <div className="input-group mb-1 mt-2">
+                  <input
+                    type="text"
+                    className="form-control ps-3 p-2"
+                    placeholder="Inventory Name"
+                    {...register("name", { required: true })}
+                  />
+                </div>
+                {errors.name && (
+                  <div className="login-error mt-2">
+                    <Label title={"Inventory Name required"} modeError={true} />
+                  </div>
+                )}
+              </div>
+              <div className="col-lg-6">
+                <label className="mt-2">Price</label>
+                <span className="text-danger">*</span>
+                <div className="input-group mb-1 mt-2">
+                  <input
+                    type="text"
+                    className="form-control ps-3 p-2"
+                    placeholder="Price"
+                    {...register("price", { required: true })}
+                  />
+                </div>
+                {errors.price && (
+                  <div className="login-error mt-2">
+                    <Label title={"Inventory price required"} modeError={true} />
+                  </div>
+                )}
+              </div>
+            </div>
             <div className="row">
               <div className="col-lg-6">
                 <div className="time-pickers position-relative w-100-mob w-100">
                   <Controller
                     control={control}
-                    name="inventory_id"
+                    name="category_id"
                     rules={{
                       required: true,
                     }}
                     render={({ field }) => (
                       <Form.Group className="mb-1">
-                        <label className="mb-2 mt-2">{"Inventory Id"}</label>
+                        <label className="mb-2 mt-2">{"Category Id"}</label>
                         <span className="text-danger">*</span>
                         <VendorSelect
                           onChange={(e: any) => {
@@ -308,75 +371,23 @@ const  InventoryOut = () => {
                           }}
                           isSearchable={true}
                           options={roleList}
-                          selected={watchAllFields.inventory_id}
+                          selected={watchAllFields.category_id}
                         />
                       </Form.Group>
                     )}
                   />
-                  {errors.inventory_id && (
+                  {errors.category_id && (
                     <div className="login-error mt-3">
                       <Label
-                        title={"Please Select Inventory id"}
+                        title={"Please Select category id"}
                         modeError={true}
                       />
                     </div>
                   )}
                 </div>
               </div>
+            </div>
 
-              <div className="col-lg-6">
-                <div className="time-pickers position-relative w-100-mob w-100">
-                  <Controller
-                    control={control}
-                    name="customer_id"
-                    rules={{
-                      required: true,
-                    }}
-                    render={({ field }) => (
-                      <Form.Group className="mb-1">
-                        <label className="mb-2 mt-2">{"Customer Id"}</label>
-                        <span className="text-danger">*</span>
-                        <VendorSelect
-                          onChange={(e: any) => {
-                            field.onChange(e.id);
-                          }}
-                          isSearchable={true}
-                          options={customerList}
-                          selected={watchAllFields.customer_id}
-                        />
-                      </Form.Group>
-                    )}
-                  />
-                  {errors.customer_id && (
-                    <div className="login-error mt-3">
-                      <Label
-                        title={"Please Select customer id"}
-                        modeError={true}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-lg-6">
-                <label className="mt-2">Qty</label>
-                <span className="text-danger">*</span>
-                <div className="input-group mb-1 mt-2">
-                  <input
-                    type="text"
-                    className="form-control ps-3 p-2"
-                    placeholder="Qty"
-                    {...register("qty", { required: true })}
-                  />
-                </div>
-                {errors.qty && (
-                  <div className="login-error mt-2">
-                    <Label title={"Inventory qty required"} modeError={true} />
-                  </div>
-                )}
-              </div>
-            </div>
             <Button
               id="add_user"
               type="submit"
@@ -393,4 +404,4 @@ const  InventoryOut = () => {
   );
 };
 
-export default InventoryOut;
+export default Inventory;

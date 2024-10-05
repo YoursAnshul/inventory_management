@@ -24,31 +24,24 @@ import DeleteModal from "../../components/Common/DeleteModal/DeleteModal";
 import { UPDATE_ME_CALL, setDataInRedux } from "../../action/CommonAction";
 const headers: GridHeader[] = [
   {
-    title: "Name",
+    title: "Inventory Name",
     class: "text-center",
   },
   {
-    title: "Date",
+    title: "Qty",
     class: "text-center",
   },
   {
-    title: "Mobile Number",
+    title: "Price",
     class: "text-center",
   },
   {
-    title: "Email",
+    title: "Created Date",
     class: "text-center",
-  },
-  {
-    title: "Role",
-    class: "text-center",
-  },
-  {
-    title: "Action",
-    class: "text-center",
-  },
+  }
 ];
-const InventoryIn = () => {
+
+const  InventoryIn = () => {
   const [show, setShow] = useState(false);
   const handleClose = () => {
     setShow(false);
@@ -79,6 +72,7 @@ const InventoryIn = () => {
   const watchAllFields = watch();
   const [isEdit, setIsEdit] = useState(false);
   const [roleList, setRoleList] = useState<any[]>([]);
+  const [customerList, setCustomerList] = useState<any[]>([]);
   const [type, setType] = useState("password");
   const [icon, setIcon] = useState<any>(BsEyeSlash);
   const [showPassword, setShowPassword] = useState<any>();
@@ -92,32 +86,11 @@ const InventoryIn = () => {
 
   useEffect(() => {
     let exist = false;
-    for (let i = 0; i < headers.length; i++) {
-      if (headers[i].title == "Action") {
-        exist = true;
-        break;
-      }
-    }
-    {
-      if (!exist) {
-        headers.push({ title: "Action", class: "text-center" });
-      }
-    }
   }, []);
   useEffect(() => {
-    let roleValue = [
-      { id: "ADMIN", role: "Admin" },
-    ];
-    let temp1: any[] = [];
-    for (let i in roleValue) {
-      temp1.push({
-        ...roleValue[i],
-        value: roleValue[i].role,
-        id: roleValue[i].id,
-      });
-    }
-    setRoleList(temp1);
     getUserList(1);
+    getCategoryList();
+    getInventoryList();
   }, []);
 
   const addUser = (data: any) => {
@@ -130,34 +103,68 @@ const InventoryIn = () => {
         .then((res: any) => {
           reset({});
           setShow(false);
-          toast.success("User Updated Successfully");
+          toast.success("Inventory Updated Successfully");
           dispatch(setDataInRedux({ type: UPDATE_ME_CALL, value: true }));
           getUserList(1);
         })
         .catch((e) => {
-          toast.error("User Updatation Failed try again.");
+          toast.error("Inventory Updatation Failed try again.");
         });
     } else {
-      WebService.postAPI({ action: "add-user", body: data, id: "add_user" })
+      data["type"] = "IN";
+      WebService.postAPI({ action: "inventory/transaction", body: data, id: "add_user" })
         .then((res: any) => {
           reset({});
           setShow(false);
           getUserList(1);
-          toast.success("User Created Successfully");
+          toast.success("Inventory Created Successfully");
         })
         .catch(() => {
-          toast.error("User Creation Failed try again.");
+          toast.error("Inventory Creation Failed try again.");
         });
     }
   };
-  const handleToggle = () => {
-    if (type === "password") {
-      setIcon(BsEye);
-      setType("text");
-    } else {
-      setIcon(BsEyeSlash);
-      setType("password");
-    }
+
+  const getInventoryList = () => {
+    WebService.getAPI({
+      action: `inventory-details`,
+      body: {  },
+    })
+      .then((res: any) => {
+          let temp1: any[] = [];
+          let roleValue: any[] = res.data;
+          for (let i in roleValue) {
+            temp1.push({
+              ...roleValue[i],
+              value: roleValue[i].name,
+              id: roleValue[i].id,
+            });
+          }
+          setRoleList(temp1);
+      })
+      .catch((e) => {
+      });
+  };
+
+  const getCategoryList = () => {
+    WebService.getAPI({
+      action: `customers`,
+      body: {  },
+    })
+      .then((res: any) => {
+          let temp1: any[] = [];
+          let roleValue: any[] = res.data;
+          for (let i in roleValue) {
+            temp1.push({
+              ...roleValue[i],
+              value: roleValue[i].name,
+              id: roleValue[i].id,
+            });
+          }
+          setCustomerList(temp1);
+      })
+      .catch((e) => {
+      });
   };
 
   const getUserList = (
@@ -169,9 +176,9 @@ const InventoryIn = () => {
     pageCount.current = page;
     setShowLoader(true);
     WebService.getAPI({
-      action: `users?keyword=${keyword ? keyword : ""}&date_from=${startDate ? startDate : ""
+      action: `inventory/transactions?keyword=${keyword ? keyword : ""}&date_from=${startDate ? startDate : ""
         }&date_to=${endDate ? endDate : ""}`,
-      body: { page: page },
+      body: { page: page, type: "IN" },
     })
       .then((res: any) => {
         setShowLoader(false);
@@ -182,7 +189,13 @@ const InventoryIn = () => {
         for (var i in res.data) {
           let columns: GridColumn[] = [];
           columns.push({
-            value: res.data[i].name ? res.data[i].name : "N/A",
+            value: res.data[i].inventory_name ? res.data[i].inventory_name : "N/A",
+          });
+          columns.push({
+            value: res.data[i].qty ? res.data[i].qty : "N/A",
+          });
+          columns.push({
+            value: res.data[i].customer_name ? res.data[i].customer_name : "N/A",
           });
           columns.push({
             value: res.data[i].created_at
@@ -192,20 +205,6 @@ const InventoryIn = () => {
               )
               : "N/A",
           });
-          columns.push({
-            value: res.data[i].mobile_number
-              ? res.data[i].mobile_number
-              : "N/A",
-          });
-          columns.push({
-            value: res.data[i].email ? res.data[i].email : "N/A",
-          });
-          columns.push({
-            value: res.data[i].role
-              ? HelperService.getRoleValue(res.data[i].role)
-              : "N/A",
-          });
-          columns.push({ value: actionList(res.data[i]), type: "COMPONENT" });
           rowCompute.current.push({ data: columns });
           rows.push({ data: columns });
         }
@@ -217,44 +216,6 @@ const InventoryIn = () => {
       });
   };
 
-  const actionList = (value: any) => {
-    return (
-      <div className="action-btns">
-        <div>
-          <button
-            type="button"
-            onClick={() => onEdit(value)}
-            className="btn btn-edit editicon"
-            data-toggle="tooltip"
-            data-placement="top"
-            title="Edit"
-          >
-            <span>
-              <Link to="#">
-                <MdModeEditOutline className="editicon" />
-              </Link>
-            </span>
-          </button>
-        </div>
-
-        <div>
-          <button
-            className="btn btn-delete"
-            onClick={() => onConfirmDelete(value)}
-            data-toggle="tooltip"
-            data-placement="top"
-            title="Delete"
-          >
-            <span>
-              <Link to="#">
-                <FaTrashAlt className="trashicon" />
-              </Link>
-            </span>
-          </button>
-        </div>
-      </div>
-    );
-  };
   const onEdit = (val: any) => {
     setEditData(val);
     reset(val);
@@ -294,7 +255,7 @@ const InventoryIn = () => {
           <div>
             <span className="col-2 text-end ml-2">
               <Button variant="success" onClick={handleShow}>
-                + Add
+                + Add Inventory
               </Button>
             </span>
           </div>
@@ -319,289 +280,30 @@ const InventoryIn = () => {
             ShowLoader={ShowLoader}
             count={totalCount}
             onPageChange={getUserList}
-            errorMessage={"No User Found"}
+            errorMessage={"No Inventory Found"}
           />
         </div>
       </div>
 
       <Modal size="lg" show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>{isEdit ? 'Edit' : 'Add'} User</Modal.Title>
+          <Modal.Title>{isEdit ? 'Edit' : 'Add'} Inventory</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <form className="mb-3" onSubmit={handleSubmit(addUser)}>
-            <div className="row">
-              <div className="col-lg-6">
-                <label className="mt-2">First Name</label>
-                <span className="text-danger">*</span>
-                <div className="input-group mb-1 mt-2">
-                  <input
-                    type="text"
-                    className="form-control ps-3 p-2"
-                    placeholder="First Name"
-                    {...register("first_name", { required: true })}
-                  />
-                </div>
-                {errors.first_name && (
-                  <div className="login-error mt-2">
-                    <Label title={"First Name required"} modeError={true} />
-                  </div>
-                )}
-              </div>
-              <div className="col-lg-6">
-                <label className="mt-2">Last Name</label>
-                <span className="text-danger">*</span>
-                <div className="input-group mb-1 mt-2">
-                  <input
-                    type="text"
-                    className="form-control ps-3 p-2"
-                    placeholder="Last Name"
-                    {...register("last_name", { required: true })}
-                  />
-                </div>
-                {errors.last_name && (
-                  <div className="login-error mt-2">
-                    <Label title={"Last Name required"} modeError={true} />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="row">
-              <div className="col-lg-6">
-                <label className="mt-2">Mobile Number</label>
-                <span className="text-danger">*</span>
-                <div className="input-group mb-1 mt-2">
-                  <input
-                    type="text"
-                    className="form-control ps-3 p-2"
-                    placeholder="Mobile Number"
-                    onKeyPress={HelperService.allowOnlyNumericValue10}
-                    {...register("mobile_number", { required: true })}
-                  />
-                </div>
-                {errors.mobile_number && (
-                  <div className="login-error mt-2">
-                    <Label
-                      title={"Mobile Number required"}
-                      modeError={true}
-                    />
-                  </div>
-                )}
-              </div>
-              <div className="col-lg-6">
-                <label className="mt-2">Email</label>
-                <span className="text-danger">*</span>
-                <Controller
-                  control={control}
-                  name="email"
-                  rules={{
-                    required: "false",
-                    pattern: {
-                      value: emailRegex,
-                      message: "Enter valid email address",
-                    },
-                  }}
-                  render={({
-                    field: { onChange, onBlur },
-                    fieldState: { isTouched, isDirty },
-                  }) => (
-                    <div>
-                      <div className="form-group">
-                        <div className="input-group mb-1 mt-2">
-                          <span className="input-group-text bg-white border-end-0 text-secondary">
-                            <HiOutlineEnvelope size={16} />
-                          </span>
-                          <input
-                            type="text"
-                            className="form-control ps-3 p-2"
-                            name="new-email"
-                            placeholder="Email Address"
-                            onChange={onChange}
-                            onBlur={onBlur}
-                            value={watch().email}
-                          />
-                        </div>
-                      </div>
-                      {(errors["email"]?.message ||
-                        Boolean(errors["email"]?.message) ||
-                        (isTouched && !watchAllFields.email) ||
-                        (watchAllFields.email &&
-                          !emailRegex.test(watchAllFields.email))) && (
-                          <div className="login-error">
-                            <Label
-                              title={
-                                errors.email?.message || watchAllFields.email
-                                  ? "Enter valid email address"
-                                  : "Please Enter Email."
-                              }
-                              modeError={true}
-                            />
-                          </div>
-                        )}
-                    </div>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="row">
-              <div className="col-lg-6">
-                <>
-                  <label className="mt-3 mb-2">{isEdit ? 'Change' : 'Create'} Password</label>
-                  <span className="text-danger">{!isEdit ? '*' : ''}</span>
-                  <Controller
-                    control={control}
-                    name="password"
-                    rules={{
-                      required: isEdit ? false : "Please Enter Password",
-                    }}
-                    render={({
-                      field: { onChange, onBlur },
-                      fieldState: { isTouched },
-                    }) => (
-                      <div className="mb-3">
-                        <div className="form-group mb-2">
-                          <div className="input-group mb-2">
-                            <span className="input-group-text bg-white border-end-0 text-secondary">
-                              <HiOutlineKey size={16} />
-                            </span>
-                            <input
-                              type={type}
-                              name="new-email"
-                              className="form-control ps-3 p-2"
-                              placeholder="Password"
-                              onChange={onChange}
-                              onBlur={onBlur}
-                              autoComplete="new-password"
-                            />
-
-                            <span
-                              className="input-group-text text-secondary bg-white border-start-0 cursor-pointer"
-                              onClick={handleToggle}
-                            >
-                              {type == "password" ? (
-                                <BsEye size={16} />
-                              ) : (
-                                <BsEyeSlash size={16} />
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                        {(errors["password"]?.message ||
-                          Boolean(errors["password"]?.message) ||
-                          (isTouched && !watchAllFields.password)) && (
-                            <div className="login-error">
-                              <Label
-                                title={
-                                  errors.password?.message ||
-                                    watchAllFields.password
-                                    ? "Between 8 to 20 characters and at least one upper case, lower case, number and special character."
-                                    : "Please Enter Password."
-                                }
-                                modeError={true}
-                              />
-                            </div>
-                          )}
-                      </div>
-                    )}
-                  />
-                </>
-              </div>
-              <div className="col-lg-6 mt-3">
-                <div className="form-group">
-                  <>
-                    <label className="mb-2">
-                      {" "}
-                      {"Confirm New Password"}
-                    </label>
-                    <span className="text-danger">{!isEdit ? '*' : ''}</span>
-                    <Controller
-                      control={control}
-                      name="comfirmpassword"
-                      rules={{
-                        required: isEdit ? false : "Please Enter New Password",
-                        validate: (value: any) => {
-                          const { password } = getValues();
-                          return (
-                            password === value || "Passwords must match"
-                          );
-                        },
-                      }}
-                      render={({
-                        field: { onChange, onBlur },
-                        fieldState: { isTouched },
-                      }) => (
-                        <div className="mb-3">
-                          <div className="input-group mb-2">
-                            <span className="input-group-text bg-white border-end-0 text-secondary">
-                              <HiOutlineKey size={16} />
-                            </span>
-                            <input
-                              type={showPassword ? "text" : "password"}
-                              className="form-control ps-3 p-2"
-                              placeholder="Confirm New Password"
-                              onChange={onChange}
-                              onBlur={onBlur}
-                            />
-                            <span
-                              className="input-group-text text-secondary bg-white border-start-0 cursor-pointer"
-                              onClick={() =>
-                                setShowPassword(!showPassword)
-                              }
-                            >
-                              {type == "password" ? (
-                                <BsEye
-                                  size={16}
-                                  style={{ color: "#0B1956" }}
-                                />
-                              ) : (
-                                <BsEyeSlash
-                                  size={16}
-                                  style={{ color: "#0B1956" }}
-                                />
-                              )}
-                            </span>
-                          </div>
-                          {(errors["comfirmpassword"]?.message ||
-                            Boolean(errors["comfirmpassword"]?.message) ||
-                            (isTouched &&
-                              !watchAllFields.comfirmpassword) ||
-                            (watchAllFields.comfirmpassword &&
-                              watchAllFields.password !=
-                              watchAllFields.comfirmpassword)) && (
-                              <div className="login-error">
-                                <Label
-                                  title={
-                                    errors.comfirmpassword?.message ||
-                                      watchAllFields.comfirmpassword
-                                      ? "Passwords Must Match"
-                                      : "Please Enter Confirm Password."
-                                  }
-                                  modeError={true}
-                                />
-                              </div>
-                            )}
-                        </div>
-                      )}
-                    />
-                  </>
-                </div>
-              </div>
-            </div>
-
+          
             <div className="row">
               <div className="col-lg-6">
                 <div className="time-pickers position-relative w-100-mob w-100">
                   <Controller
                     control={control}
-                    name="role"
+                    name="inventory_id"
                     rules={{
                       required: true,
                     }}
                     render={({ field }) => (
                       <Form.Group className="mb-1">
-                        <label className="mb-2 mt-2">{"Role"}</label>
+                        <label className="mb-2 mt-2">{"Inventory Id"}</label>
                         <span className="text-danger">*</span>
                         <VendorSelect
                           onChange={(e: any) => {
@@ -609,15 +311,49 @@ const InventoryIn = () => {
                           }}
                           isSearchable={true}
                           options={roleList}
-                          selected={watchAllFields.role}
+                          selected={watchAllFields.inventory_id}
                         />
                       </Form.Group>
                     )}
                   />
-                  {errors.role && (
+                  {errors.inventory_id && (
                     <div className="login-error mt-3">
                       <Label
-                        title={"Please Select Role"}
+                        title={"Please Select Inventory id"}
+                        modeError={true}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="col-lg-6">
+                <div className="time-pickers position-relative w-100-mob w-100">
+                  <Controller
+                    control={control}
+                    name="customer_id"
+                    rules={{
+                      required: true,
+                    }}
+                    render={({ field }) => (
+                      <Form.Group className="mb-1">
+                        <label className="mb-2 mt-2">{"Customer Id"}</label>
+                        <span className="text-danger">*</span>
+                        <VendorSelect
+                          onChange={(e: any) => {
+                            field.onChange(e.id);
+                          }}
+                          isSearchable={true}
+                          options={customerList}
+                          selected={watchAllFields.customer_id}
+                        />
+                      </Form.Group>
+                    )}
+                  />
+                  {errors.customer_id && (
+                    <div className="login-error mt-3">
+                      <Label
+                        title={"Please Select customer id"}
                         modeError={true}
                       />
                     </div>
@@ -625,7 +361,25 @@ const InventoryIn = () => {
                 </div>
               </div>
             </div>
-
+            <div className="row">
+              <div className="col-lg-6">
+                <label className="mt-2">Qty</label>
+                <span className="text-danger">*</span>
+                <div className="input-group mb-1 mt-2">
+                  <input
+                    type="text"
+                    className="form-control ps-3 p-2"
+                    placeholder="Qty"
+                    {...register("qty", { required: true })}
+                  />
+                </div>
+                {errors.qty && (
+                  <div className="login-error mt-2">
+                    <Label title={"Inventory qty required"} modeError={true} />
+                  </div>
+                )}
+              </div>
+            </div>
             <Button
               id="add_user"
               type="submit"
