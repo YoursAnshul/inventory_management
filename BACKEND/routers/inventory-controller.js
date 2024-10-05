@@ -267,8 +267,14 @@ exports.inventoryTransaction = (req, res) => {
         }
 
         const currentStock = results[0].stock || 0;
+        console.log("currentStock", Number(currentStock));
+        console.log("qty", Number(qty));
 
-        if (type === 'OUT' && currentStock < qty) {
+        console.log(type);
+        
+        
+
+        if (type === 'OUT' && Number(currentStock) <= Number(qty)) {
             return res.status(400).json({ success: false, message: 'Insufficient quantity for OUT transaction' });
         }
 
