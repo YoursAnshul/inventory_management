@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Row,
-  Col,
-  Tab,
-  Nav,
-  InputGroup,
-  Form,
-  Pagination,
-  Button,
-} from "react-bootstrap";
+import { Row, Col, Tab, Nav } from "react-bootstrap";
 
 import TabCurrent from "./inventory.in";
 import TabPast from "./inventory.out";
@@ -18,7 +9,6 @@ import { RootState } from "../../config/Store";
 import HelperService from "../../Services/HelperService";
 import { reduxState } from "../../reducer/CommonReducer";
 import { useLocation, useNavigate } from "react-router-dom";
-import PageTitle from "../../components/Common/PageTitle";
 
 interface propData {
   station: string;
@@ -27,11 +17,6 @@ interface propData {
 const InventoryManagement = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const stationName = queryParams.get('name');
-  const chargeStationId = queryParams.get('station_id');
-
-
   const [activeTab, setActiveTab] = useState<string>("first");
 
   const commonData: any = useSelector<RootState, reduxState>(
@@ -41,31 +26,10 @@ const InventoryManagement = () => {
   const RolePermission: any = useSelector<RootState, reduxState>(
     (state: any) => state.RolePermission
   );
-  const [categoryData, setCategoryData] = useState<any>();
-  const [domainClick, setDomainClick] = useState<any>();
-  const [countryClick, setCountryClick] = useState<any>();
 
   useEffect(() => {
-    if (
-      RolePermission &&
-      RolePermission?.rolePermission &&
-      !HelperService.isEmptyObject(RolePermission?.rolePermission)
-    ) {
-      if (
-        RolePermission?.rolePermission?.menus &&
-        RolePermission?.rolePermission?.menus.length > 0
-      ) {
-        const data = RolePermission?.rolePermission?.menus.find(
-          (item: any) => item.name == "Blacklisted"
-        );
-        if (data && data.is_read) {
-          setCategoryData(data);
-        } else {
-          navigate("/dashboard");
-        }
-      }
-    }
-  }, [RolePermission]);
+    
+  }, []);
 
   return (
     <>

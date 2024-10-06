@@ -94,23 +94,6 @@ const  InventoryIn = () => {
   }, []);
 
   const addUser = (data: any) => {
-    if (data.id) {
-      WebService.putAPI({
-        action: "update-user/" + data.id,
-        body: data,
-        id: "add_user",
-      })
-        .then((res: any) => {
-          reset({});
-          setShow(false);
-          toast.success("Inventory Updated Successfully");
-          dispatch(setDataInRedux({ type: UPDATE_ME_CALL, value: true }));
-          getUserList(1);
-        })
-        .catch((e) => {
-          toast.error("Inventory Updatation Failed try again.");
-        });
-    } else {
       data["type"] = "IN";
       WebService.postAPI({ action: "inventory/transaction", body: data, id: "add_user" })
         .then((res: any) => {
@@ -122,15 +105,13 @@ const  InventoryIn = () => {
         .catch(() => {
           toast.error("Inventory Creation Failed try again.");
         });
-    }
   };
 
   const getInventoryList = () => {
     WebService.getAPI({
       action: `inventory-details`,
       body: {  },
-    })
-      .then((res: any) => {
+    }).then((res: any) => {
           let temp1: any[] = [];
           let roleValue: any[] = res.data;
           for (let i in roleValue) {
@@ -216,35 +197,6 @@ const  InventoryIn = () => {
       });
   };
 
-  const onEdit = (val: any) => {
-    setEditData(val);
-    reset(val);
-    setIsEdit(true);
-    setShow(true);
-  };
-  const onConfirmDelete = (val: any) => {
-    setEditData(val);
-    setDeleteModal(true);
-  };
-  const onDelete = () => {
-    setDeleteModal(false);
-    setShowLoader(true);
-    WebService.deleteAPI({
-      action: `delete-user/${editData?.id}`,
-      body: null,
-    })
-      .then((res: any) => {
-        setShowLoader(false);
-        toast.success(res.message);
-        setEditData({});
-        getUserList(1);
-      })
-      .catch((e) => {
-        setShowLoader(false);
-        setEditData({});
-      });
-  };
-
   return (
     <>
       <div className="container">
@@ -260,16 +212,6 @@ const  InventoryIn = () => {
             </span>
           </div>
         </div>
-        <DeleteModal
-          isShow={showDeleteModal}
-          close={() => {
-            setDeleteModal(false);
-            setEditData("");
-          }}
-          onDelete={() => {
-            onDelete();
-          }}
-        />
         <div className="table-card">
           <Grid
             searchPlaceholder="Search By Name/Email"
