@@ -68,14 +68,10 @@ const  InventoryIn = () => {
   } = useForm<any>({});
   const dispatch: Dispatch<any> = useDispatch();
 
-  const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
   const watchAllFields = watch();
   const [isEdit, setIsEdit] = useState(false);
   const [roleList, setRoleList] = useState<any[]>([]);
   const [customerList, setCustomerList] = useState<any[]>([]);
-  const [type, setType] = useState("password");
-  const [icon, setIcon] = useState<any>(BsEyeSlash);
-  const [showPassword, setShowPassword] = useState<any>();
   const pageCount = useRef<number>(0);
   const [ShowLoader, setShowLoader] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
@@ -83,7 +79,7 @@ const  InventoryIn = () => {
   const rowCompute = useRef<GridRow[]>([]);
   const [editData, setEditData] = useState<any>();
   const [showDeleteModal, setDeleteModal] = useState<boolean>(false);
-
+  
   useEffect(() => {
     let exist = false;
   }, []);
@@ -91,7 +87,7 @@ const  InventoryIn = () => {
     getUserList(1);
     getCategoryList();
     getInventoryList();
-  }, []);
+  }, [totalCount]);
 
   const addUser = (data: any) => {
       data["type"] = "IN";

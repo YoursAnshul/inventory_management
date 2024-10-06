@@ -88,7 +88,7 @@ const  InventoryOut = () => {
     getUserList(1);
     getCategoryList();
     getInventoryList();
-  }, []);
+  }, [totalCount]);
 
   const addUser = (data: any) => {
     if (data.id) {
