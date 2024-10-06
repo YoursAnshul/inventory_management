@@ -10,9 +10,6 @@ import HelperService from "../../Services/HelperService";
 import { reduxState } from "../../reducer/CommonReducer";
 import { useLocation, useNavigate } from "react-router-dom";
 
-interface propData {
-  station: string;
-}
 
 const InventoryManagement = () => {
   const navigate = useNavigate();
@@ -28,7 +25,7 @@ const InventoryManagement = () => {
   );
 
   useEffect(() => {
-    
+
   }, []);
 
   return (
@@ -46,7 +43,7 @@ const InventoryManagement = () => {
             <Row className="justify-content-between mb-3">
               <Col md={4}>
                 <Nav variant="underline" className="tab-style-1">
-                <Nav.Item>
+                  <Nav.Item>
                     <Nav.Link
                       onClick={() => setActiveTab("first")}
                       eventKey="first">
@@ -72,13 +69,13 @@ const InventoryManagement = () => {
             </Row>
             <Tab.Content>
               <Tab.Pane eventKey="first">
-                <TabInventory/>
+                <TabInventory activeTab={activeTab} />
               </Tab.Pane>
               <Tab.Pane eventKey="second">
-                <TabCurrent/>
+                <TabCurrent />
               </Tab.Pane>
               <Tab.Pane eventKey="third">
-                <TabPast/>
+                <TabPast />
               </Tab.Pane>
             </Tab.Content>
           </Tab.Container>

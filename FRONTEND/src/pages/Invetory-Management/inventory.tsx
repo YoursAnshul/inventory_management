@@ -45,7 +45,11 @@ const headers: GridHeader[] = [
   },
 ];
 
-const  Inventory = () => {
+interface propData {
+  activeTab: string;
+}
+
+const  Inventory = (props: propData) => {
   const [show, setShow] = useState(false);
   const handleClose = () => {
     setShow(false);
@@ -88,23 +92,9 @@ const  Inventory = () => {
   const [showDeleteModal, setDeleteModal] = useState<boolean>(false);
 
   useEffect(() => {
-    let exist = false;
-    for (let i = 0; i < headers.length; i++) {
-      if (headers[i].title == "Action") {
-        exist = true;
-        break;
-      }
-    }
-    {
-      if (!exist) {
-        headers.push({ title: "Action", class: "text-center" });
-      }
-    }
-  }, []);
-  useEffect(() => {
     getUserList(1);
     getCategoryList();
-  }, []);
+  }, [props.activeTab]);
 
   const addUser = (data: any) => {
     if (data.id) {
