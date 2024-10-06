@@ -32,7 +32,7 @@ const headers: GridHeader[] = [
     class: "text-center",
   },
   {
-    title: "Price",
+    title: "Category",
     class: "text-center",
   },
   {
