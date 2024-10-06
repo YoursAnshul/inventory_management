@@ -336,13 +336,12 @@ const  Inventory = () => {
               </div>
               <div className="col-lg-6">
                 <label className="mt-2">Price</label>
-                <span className="text-danger">*</span>
                 <div className="input-group mb-1 mt-2">
                   <input
                     type="text"
                     className="form-control ps-3 p-2"
                     placeholder="Price"
-                    {...register("price", { required: true })}
+                    {...register("price", { required: false })}
                   />
                 </div>
                 {errors.price && (
